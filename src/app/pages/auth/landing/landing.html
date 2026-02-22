@@ -1,0 +1,20 @@
+<div class="p-5">
+    <h1 class="text-3xl font-bold mb-4"> Proyecto de {{ usuario }}</h1>
+
+    <div class="grid">
+        <div class="col-12 md:col-6">
+            <p-card header="Landing" subheader="Practica 2">
+                <div class="flex flex-column gap-3">
+                    
+                    <div class="flex flex-column gap-2 mt-2">
+                        <span class="p-float-label">
+                            <input pInputText id="nuevoNombre" class="w-full" />
+                        </span>
+                        <p-button label="Login" routerLink="/" icon="pi pi-user" severity="info"></p-button>
+                        <p-button label="Registro" routerLink="/register" icon="pi pi-user-plus" severity="warn"></p-button>
+                    </div>
+                </div>
+            </p-card>
+        </div>
+    </div>
+</div>

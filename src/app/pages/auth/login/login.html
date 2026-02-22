@@ -1,0 +1,43 @@
+<div class="flex align-items-center justify-content-center min-h-screen">
+    
+    <p-card [style]="{ width: '25rem' }">
+        <ng-template #title> Inicia sesión </ng-template>
+        <ng-template #subtitle> Ingresa tus datos: </ng-template>
+
+        <div class="flex flex-column gap-3 mt-3">
+            
+            <p-inputgroup>
+                <p-inputgroup-addon>
+                    <i class="pi pi-user"></i>
+                </p-inputgroup-addon>
+                <input pInputText [(ngModel)]="value1" placeholder="Nombre" class="w-full" />
+                
+            </p-inputgroup>
+
+            <p-inputgroup>
+                <p-inputgroup-addon>
+                    <i class="pi pi-lock"></i>
+                </p-inputgroup-addon>
+                <input pInputText [(ngModel)]="value2" placeholder="Password" type="password" class="w-full" />
+            </p-inputgroup>
+
+            <p-inputgroup>
+                <p-inputgroup-addon>
+                    <i class="pi pi-lock"></i>
+                </p-inputgroup-addon>
+                <input pInputText [(ngModel)]="value3" placeholder="Confirm Password" type="password" class="w-full" />
+            </p-inputgroup>
+
+            <p class="text-center mt-2">
+                ¿No tienes cuenta? 
+                <a routerLink="/register" class="text-blue-500 no-underline hover:underline">Registrate</a>
+            </p>
+        </div>
+
+        <ng-template #footer>
+            <div class="flex justify-content-end">
+                <p-button routerLink="/landing" label="Iniciar sesión" severity="success" />
+            </div>
+        </ng-template>
+    </p-card>
+</div>
