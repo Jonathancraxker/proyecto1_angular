@@ -196,7 +196,8 @@
 
         <ng-template #footer>
             <div class="flex justify-content-end gap-3">
-                <button form="registerForm" pButton severity="success" type="submit" label="Registrar" icon="pi pi-check"></button>
+                <button form="registerForm" pButton severity="success" type="submit" label="Registrar" icon="pi pi-save"
+                [disabled]="exampleForm.invalid || exampleForm.get('edad')?.value === 'NO'"></button>
             </div>
         </ng-template>
     </p-card>

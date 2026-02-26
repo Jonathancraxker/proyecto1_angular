@@ -50,7 +50,7 @@ export class Login {
             this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Form Submitted', life: 3000 });
             this.exampleForm.reset();
             this.formSubmitted = false;
-            this.router.navigate(['/landing']);
+            this.router.navigate(['/home']);
             }
     }
 
