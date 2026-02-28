@@ -1,0 +1,18 @@
+:host {
+    display: block; /* Cambiamos a block para que el height funcione mejor */
+    height: 100vh; 
+}
+
+/* Forzamos a que el menú de PrimeNG ocupe todo el alto del :host */
+::ng-deep .p-menu {
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    border-radius: 0 !important;
+    border: none !important;
+}
+
+/* Esto hace que la lista de items crezca y empuje el 'footer' (Amy) hacia abajo */
+::ng-deep .p-menu-list {
+    flex-grow: 1 !important;
+}

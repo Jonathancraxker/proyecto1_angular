@@ -27,6 +27,14 @@ export const routes: Routes = [
                 path: 'landing',
                 loadComponent: () => import('./pages/auth/landing/landing').then(m => m.Landing)
             },
+            {
+                path: 'user',
+                loadComponent: () => import('./pages/user/user').then(m => m.User)
+            },
+            {
+                path: 'groups',
+                loadComponent: () => import('./pages/groups/groups').then(m => m.Groups)
+            },
         ]
     }
 ];
