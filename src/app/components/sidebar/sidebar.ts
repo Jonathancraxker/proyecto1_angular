@@ -31,10 +31,16 @@ constructor(private router: Router) {}
     this.crearNuevoDocumento();
   }
 
-@HostListener('window:keydown.control.l', ['$event'])
+@HostListener('window:keydown.control.p', ['$event'])
   onLanding(event: any) {
     event.preventDefault();
-    this.landing();
+    this.perfil();
+  }
+  
+  @HostListener('window:keydown.control.u', ['$event'])
+  onGroups(event: any) {
+    event.preventDefault();
+    this.groups();
   }
 
   @HostListener('window:keydown.control.d', ['$event'])
@@ -47,9 +53,9 @@ constructor(private router: Router) {}
 
     ngOnInit() {
         this.items = [
-            {
-                separator: true
-            },
+            // {
+            //     separator: true
+            // },
             {
                 label: 'General',
                 items: [
@@ -60,28 +66,36 @@ constructor(private router: Router) {}
                         routerLink: '/home'
                     },
                     {
-                        label: 'Perfil',
-                        icon: 'pi pi-user',
-                        shortcut: 'ctrl+L',
-                        routerLink: '/user'
+                        label: 'Configuración',
+                        icon: 'pi pi-cog',
+                        shortcut: 'ctrl+c',
+                        routerLink: ''
                     }
                 ]
+            },
+            {
+                separator: true
             },
             {
                 label: 'Perfil',
                 items: [
                     {
-                        label: 'Groups',
-                        icon: 'pi pi-cog',
-                        shortcut: 'ctrl+O',
-                        routerLink: '/groups'
+                        label: 'Perfil',
+                        icon: 'pi pi-id-card',
+                        shortcut: 'ctrl+P',
+                        routerLink: '/user'
                     },
                     {
-                        label: 'Messages',
-                        icon: 'pi pi-inbox',
-                        badge: '2'
+                        label: 'Groups',
+                        icon: 'pi pi-users',
+                        badge: '2',
+                        shortcut: 'ctrl+U',
+                        routerLink: '/groups'
                     }
                 ]
+            },
+            {
+                separator: true
             },
             {
                 label: 'Administrador',
@@ -115,8 +129,12 @@ constructor(private router: Router) {}
     this.router.navigate(['/home'])
   }
   
-  landing() {
-    this.router.navigate(['/landing'])
+  perfil() {
+    this.router.navigate(['/user'])
+  }
+
+  groups() {
+    this.router.navigate(['/groups'])
   }
 
   graficas() {

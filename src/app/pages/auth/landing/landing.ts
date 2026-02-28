@@ -19,12 +19,12 @@ import { RouterLink } from "@angular/router";
     ButtonModule,
     InputGroupAddonModule,
     RouterLink
-],
+  ],
   templateUrl: './landing.html',
   styleUrl: './landing.css',
 })
 export class Landing {
   usuario: string = 'Jonathan';
-  nombreProyecto: string = 'Proyecto de ejemplo';
+  nombreProyecto: string = 'ANTEIKU';
 
 }

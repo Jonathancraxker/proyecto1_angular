@@ -1,0 +1,34 @@
+/* 1. Quitar morado de link */
+a, a:visited, a:hover, a:active {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+/* 2. Estado Activo */
+.active-cafe {
+    background-color: #6F4E37 !important;
+    color: #ffffff !important;
+}
+
+.active-cafe span {
+    color: #ffffff !important;
+}
+
+/* Sobrescribir las variables específicas de p-menubar */
+:host ::ng-deep {
+    /* Variables de HOVER y FOCUS para Menubar */
+    --p-menubar-item-focus-background: #D2B48C !important;
+    --p-menubar-item-focus-color: #4B3621 !important;
+    
+    /* Variables de contenido (las que quitan el azul) */
+    --p-menubar-item-content-hover-background: #D2B48C !important;
+    --p-menubar-item-content-hover-color: #4B3621 !important;
+}
+
+::ng-deep .btn-logout span {
+    color: #ff5252 !important;
+}
+::ng-deep .btn-logout:hover {
+    background-color: rgba(82, 0, 0, 0.795) !important;
+    
+}
