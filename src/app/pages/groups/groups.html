@@ -1,26 +1,114 @@
-<div class="flex flex-column align-items-center justify-content-center py-5 gap-4">
-    
-        <div class="w-full" style="max-width: 35rem;"> 
+<div class="flex flex-column align-items-center justify-content-center py-1 gap-4">
+    <div class="w-full px-4" style="max-width: 20rem;"> 
         <p-card styleClass="shadow-2">
             <div class="text-center">
-                <h2 class="text-4xl font-bold m-0" style="color: #2438a8;">N</h2>
-                <p class="text-secondary m-0">Total de Usuarios</p>
+                <h2 class="text-4xl font-bold m-0" style="color: #2438a8;">{{products ? products.length : 0}}</h2>
+                <p class="text-secondary m-0">Total de Grupos</p>
             </div>
         </p-card>
     </div>
-            <p-card [style]="{ width: '25rem', overflow: 'hidden' }">
+
+    <div class="w-full px-1" style="max-width: 95vw;">
+        <div class="card p-4 shadow-2 border-round surface-card">
+            <p-toast />
+            <p-toolbar class="mb-4">
+                <ng-template #start>
+                    <p-button label="New" icon="pi pi-plus" class="mr-2" (onClick)="openNew()" />
+                    <p-button severity="danger" label="Delete" icon="pi pi-trash" outlined (onClick)="deleteSelectedProducts()" [disabled]="!selectedProducts || !selectedProducts.length" />
+                </ng-template>
+                <ng-template #end>
+                    <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import" auto customUpload class="mr-2 inline-block" [chooseButtonProps]="{ severity: 'primary' }" />
+                    <p-button label="Export" icon="pi pi-upload" severity="secondary" (onClick)="exportCSV($event)" />
+                </ng-template>
+            </p-toolbar>
+
+            <p-table #dt [value]="products" [rows]="10" [paginator]="true" [globalFilterFields]="['nombre', 'autor', 'nivel']" 
+                     [tableStyle]="{ 'min-width': '75rem' }" [(selection)]="selectedProducts" [rowHover]="true" dataKey="id">
                 
-                <ng-template #title> Advanced Card </ng-template>
-                <ng-template #subtitle> Card subtitle </ng-template>
-                <p>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore sed consequuntur error repudiandae numquam deserunt quisquam repellat libero asperiores earum nam nobis, culpa ratione quam perferendis esse, cupiditate neque
-                    quas!
-                </p>
-                <ng-template #footer>
-                    <div class="flex gap-4 mt-1">
-                        <p-button label="Cancel" severity="secondary" class="w-full" [outlined]="true" styleClass="w-full" />
-                        <p-button label="Save" class="w-full" styleClass="w-full" />
+                <ng-template #caption>
+                    <div class="flex items-center justify-between">
+                        <h5 class="m-0">Gestión de Grupos</h5>
+                        <p-iconfield>
+                            <p-inputicon class="pi pi-search" />
+                            <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Buscar..." />
+                        </p-iconfield>
                     </div>
                 </ng-template>
-            </p-card>
+
+                <ng-template #header>
+                    <tr>
+                        <th style="width: 3rem"><p-tableHeaderCheckbox /></th>
+                        <th pSortableColumn="nivel">Nivel <p-sortIcon field="nivel" /></th>
+                        <th pSortableColumn="autor">Autor <p-sortIcon field="autor" /></th>
+                        <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre" /></th>
+                        <th pSortableColumn="integrantes">Integrantes <p-sortIcon field="integrantes" /></th>
+                        <th pSortableColumn="tickets">Tickets <p-sortIcon field="tickets" /></th>
+                        <th pSortableColumn="descripcion">Descripción <p-sortIcon field="descripcion" /></th>
+                        <th>Acciones</th>
+                    </tr>
+                </ng-template>
+
+                <ng-template #body let-product>
+                    <tr>
+                        <td><p-tableCheckbox [value]="product" /></td>
+                        <td><p-tag [value]="product.nivel" [severity]="getSeverity(product.nivel)" /></td>
+                        <td>{{ product.autor }}</td>
+                        <td>{{ product.nombre }}</td>
+                        <td>{{ product.integrantes }}</td>
+                        <td>{{ product.tickets }}</td>
+                        <td>{{ product.descripcion }}</td>
+                        <td>
+                            <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editProduct(product)" />
+                            <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteProduct(product)" />
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
+            <p-dialog [(visible)]="productDialog" [style]="{ width: '450px' }" header="Detalles del Grupo" [modal]="true">
+                <ng-template #content>
+                    <div class="flex flex-column gap-3">
+                        <div>
+                            <label class="block font-bold mb-1">Nombre del Proyecto</label>
+                            <input type="text" pInputText [(ngModel)]="product.nombre" class="w-full" />
+                        </div>
+                        <div>
+                            <label class="block font-bold mb-1">Autor</label>
+                            <input type="text" pInputText [(ngModel)]="product.autor" class="w-full" />
+                        </div>
+                        <div>
+                            <label class="block font-bold mb-1">Nivel</label>
+                            <p-select [(ngModel)]="product.nivel" [options]="['Principiante', 'Intermedio', 'Avanzado']" placeholder="Selecciona Nivel" class="w-full"></p-select>
+                        </div>
+                        <div class="grid">
+                            <div class="col-6" style="max-width: 150px;">
+                                <label class="block font-bold mb-1">Integrantes</label>
+                                <p-inputnumber [(ngModel)]="product.integrantes" 
+                                [showButtons]="true" 
+                                inputStyleClass="w-full"
+                                styleClass="w-full" />
+                        </div>
+                            <div class="col-6" style="max-width: 150px;">
+                                <label class="block font-bold mb-1">Tickets</label>
+                                <p-inputnumber [(ngModel)]="product.tickets" class="w-full" 
+                                [showButtons]="true" 
+                                inputStyleClass="w-full"
+                                styleClass="w-full" />
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block font-bold mb-1">Descripción</label>
+                            <textarea pTextarea [(ngModel)]="product.descripcion" rows="3" class="w-full"></textarea>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template #footer>
+                    <p-button label="Cancelar" icon="pi pi-times" text (click)="hideDialog()" />
+                    <p-button label="Guardar" icon="pi pi-check" (click)="saveProduct()" />
+                </ng-template>
+            </p-dialog>
+
+            <p-confirmdialog [style]="{ width: '450px' }" />
         </div>
+    </div>
+</div>

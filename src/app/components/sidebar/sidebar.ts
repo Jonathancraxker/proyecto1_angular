@@ -103,12 +103,21 @@ constructor(private router: Router) {}
                     { label: 'Usuarios', icon: 'pi pi-user', shortcut: 'ctrl+O' },
                     { label: 'Gráficas', icon: 'pi pi-chart-line', badge: '2', shortcut: 'ctrl+D', routerLink:'/graficas'},
                     { label: 'Reportes', icon: 'pi pi-file', badge: '2', shortcut: 'ctrl+F', routerLink:'/graficas'}
-
                 ]
                 },
                 {
                 separator: true,
                 styleClass: 'flex-grow-spacer'
+                },
+                {
+                    label: 'Versión',
+                    items: [
+                        { 
+                            label: 'v1.0', 
+                            icon: 'pi pi-info-circle',
+                            disabled: true
+                        }
+                    ]
                 },
                 {
                 items: [
