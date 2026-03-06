@@ -8,6 +8,8 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from "@angular/router"; 
 import { HostListener, OnInit } from '@angular/core';
 
+import { PermissionsService } from '../../services/permissions.service';
+
 @Component({
   selector: 'app-sidebar',
   standalone: true,
@@ -17,37 +19,7 @@ import { HostListener, OnInit } from '@angular/core';
 })
 export class Sidebar implements OnInit{
 
-constructor(private router: Router) {}
-
-@HostListener('window:keydown.control.q', ['$event'])
-  onLogoutShortcut(event: any) {
-    event.preventDefault();
-    this.logout();
-  }
-
-@HostListener('window:keydown.control.s', ['$event'])
-  onKeyDown(event: any) {
-    event.preventDefault();
-    this.crearNuevoDocumento();
-  }
-
-@HostListener('window:keydown.control.p', ['$event'])
-  onLanding(event: any) {
-    event.preventDefault();
-    this.perfil();
-  }
-  
-  @HostListener('window:keydown.control.u', ['$event'])
-  onGroups(event: any) {
-    event.preventDefault();
-    this.groups();
-  }
-
-  @HostListener('window:keydown.control.d', ['$event'])
-  onGraficas(event: any) {
-    event.preventDefault();
-    this.graficas();
-  }
+  constructor(private router: Router, private permsSvc: PermissionsService) {}
 
   items: MenuItem[] | undefined;
 
@@ -63,7 +35,8 @@ constructor(private router: Router) {}
                         label: 'Home',
                         icon: 'pi pi-home',
                         shortcut: 'ctrl+S',
-                        routerLink: '/home'
+                        routerLink: '/home',
+                        visible: this.permsSvc.hasPermission('users:view')
                     },
                     {
                         label: 'Configuración',
@@ -113,7 +86,7 @@ constructor(private router: Router) {}
                     label: 'Versión',
                     items: [
                         { 
-                            label: 'v1.0', 
+                            label: 'v1.0.1', 
                             icon: 'pi pi-info-circle',
                             disabled: true
                         }
@@ -132,7 +105,40 @@ constructor(private router: Router) {}
             }
         ];
     }
+  
 
+    // Definir ctrl +
+@HostListener('window:keydown.control.q', ['$event'])
+  onLogoutShortcut(event: any) {
+    event.preventDefault();
+    this.logout();
+  }
+
+@HostListener('window:keydown.control.s', ['$event'])
+  onKeyDown(event: any) {
+    event.preventDefault();
+    this.crearNuevoDocumento();
+  }
+
+@HostListener('window:keydown.control.p', ['$event'])
+  onLanding(event: any) {
+    event.preventDefault();
+    this.perfil();
+  }
+  
+  @HostListener('window:keydown.control.u', ['$event'])
+  onGroups(event: any) {
+    event.preventDefault();
+    this.groups();
+  }
+
+  @HostListener('window:keydown.control.d', ['$event'])
+  onGraficas(event: any) {
+    event.preventDefault();
+    this.graficas();
+  }
+
+    //funciones:
     crearNuevoDocumento() {
     console.log('Acción de crear nuevo documento ejecutada');
     this.router.navigate(['/home'])

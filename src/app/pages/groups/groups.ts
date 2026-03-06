@@ -19,7 +19,7 @@ import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
-import { ProductService } from '../../service/productservice';
+import { ProductService } from '../../services/productservice';
 import { Product } from '../../domain/product';
 import { MessageService, ConfirmationService } from 'primeng/api';
 

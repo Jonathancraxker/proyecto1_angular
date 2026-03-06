@@ -1,14 +1,18 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
+
 
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
-import Nora from '@primeuix/themes/nora';
-import { updatePrimaryPalette } from '@primeuix/themes';
+import Aura from '@primeuix/themes/aura';
 import { definePreset } from '@primeuix/themes';
-import { routes } from './app.routes';
 
-const MyPreset = definePreset(Nora, {
+import { HasPermissionDirective } from './directives/has-permission.directive';
+
+import { routes } from './app.routes';
+import { PermissionsService } from './services/permissions.service';
+
+const MyPreset = definePreset(Aura, {
     semantic: {
         primary: {
             50: '{blue.50}',
@@ -38,6 +42,9 @@ export const appConfig: ApplicationConfig = {
             }
         }),
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes)
+    provideZonelessChangeDetection(),
+    provideRouter(routes),
+    PermissionsService,
+    HasPermissionDirective
   ]
 };
