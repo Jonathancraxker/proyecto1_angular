@@ -2,7 +2,7 @@
     <div class="w-full px-4" style="max-width: 20rem;"> 
         <p-card styleClass="shadow-2">
             <div class="text-center">
-                <h2 class="text-4xl font-bold m-0" style="color: #2438a8;">{{products ? products.length : 0}}</h2>
+                <h2 *ifHasPermission="'groups:view'" class="text-4xl font-bold m-0" style="color: #2438a8;">{{products ? products.length : 0}}</h2>
                 <p class="text-secondary m-0">Total de Grupos</p>
             </div>
         </p-card>
@@ -13,8 +13,8 @@
             <p-toast />
             <p-toolbar class="mb-4">
                 <ng-template #start>
-                    <p-button label="New" icon="pi pi-plus" class="mr-2" (onClick)="openNew()" />
-                    <p-button severity="danger" label="Delete" icon="pi pi-trash" outlined (onClick)="deleteSelectedProducts()" [disabled]="!selectedProducts || !selectedProducts.length" />
+                    <p-button *ifHasPermission="'group:add'" label="New" icon="pi pi-plus" class="mr-2" (onClick)="openNew()" />
+                    <p-button *ifHasPermission="'group:delete'" severity="danger" label="Delete" icon="pi pi-trash" outlined (onClick)="deleteSelectedProducts()" [disabled]="!selectedProducts || !selectedProducts.length" />
                 </ng-template>
                 <ng-template #end>
                     <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import" auto customUpload class="mr-2 inline-block" [chooseButtonProps]="{ severity: 'primary' }" />
@@ -58,8 +58,8 @@
                         <td>{{ product.tickets }}</td>
                         <td>{{ product.descripcion }}</td>
                         <td>
-                            <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editProduct(product)" />
-                            <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteProduct(product)" />
+                            <p-button *ifHasPermission="'group:edit'" icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editProduct(product)" />
+                            <p-button *ifHasPermission="'group:delete'" icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteProduct(product)" />
                         </td>
                     </tr>
                 </ng-template>

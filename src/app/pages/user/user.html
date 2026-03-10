@@ -124,7 +124,7 @@
         <ng-template #footer>
             <div class="flex justify-content-between gap-2">
                 <p-button label="Borrar Cuenta" icon="pi pi-trash" severity="danger" [outlined]="true" (onClick)="onDelete()" />
-                <button form="registerForm" pButton severity="primary" type="submit" label="Actualizar" icon="pi pi-save" [disabled]="exampleForm.invalid || exampleForm.get('edad')?.value === 'NO'"></button>
+                <button ifHasPermission="group:ad" form="registerForm" pButton severity="primary" type="submit" label="Actualizar" icon="pi pi-save" [disabled]="exampleForm.invalid || exampleForm.get('edad')?.value === 'NO'"></button>
             </div>
         </ng-template>
     </p-card>

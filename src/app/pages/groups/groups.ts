@@ -22,6 +22,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { ProductService } from '../../services/productservice';
 import { Product } from '../../domain/product';
 import { MessageService, ConfirmationService } from 'primeng/api';
+import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
 interface Column {
     field: string;
@@ -38,8 +39,9 @@ interface ExportColumn {
   selector: 'app-groups',
   standalone: true,
   imports: [
-    CardModule, ButtonModule, FormsModule, TableModule, InputTextModule, 
-    CommonModule, DialogModule, SelectModule, FileUploadModule, 
+    HasPermissionDirective,
+    CardModule, ButtonModule, FormsModule, TableModule, InputTextModule,
+    CommonModule, DialogModule, SelectModule, FileUploadModule,
     IconFieldModule, InputIconModule, InputNumberModule, RadioButtonModule, 
     RatingModule, TagModule, ToastModule, ToolbarModule, ConfirmDialogModule,
     TextareaModule

@@ -36,13 +36,14 @@ export class Sidebar implements OnInit{
                         icon: 'pi pi-home',
                         shortcut: 'ctrl+S',
                         routerLink: '/home',
-                        visible: this.permsSvc.hasPermission('users:view')
+                        visible: this.permsSvc.hasPermission('group:view')
                     },
                     {
                         label: 'Configuración',
                         icon: 'pi pi-cog',
                         shortcut: 'ctrl+c',
-                        routerLink: ''
+                        routerLink: '',
+                        visible: this.permsSvc.hasPermission('group:view')
                     }
                 ]
             },
@@ -56,14 +57,16 @@ export class Sidebar implements OnInit{
                         label: 'Perfil',
                         icon: 'pi pi-id-card',
                         shortcut: 'ctrl+P',
-                        routerLink: '/user'
+                        routerLink: '/user',
+                        visible: this.permsSvc.hasPermission('group:view')
                     },
                     {
                         label: 'Groups',
                         icon: 'pi pi-users',
                         badge: '2',
                         shortcut: 'ctrl+U',
-                        routerLink: '/groups'
+                        routerLink: '/groups',
+                        visible: this.permsSvc.hasPermission('group:view')
                     }
                 ]
             },
@@ -73,9 +76,9 @@ export class Sidebar implements OnInit{
             {
                 label: 'Administrador',
                 items: [
-                    { label: 'Usuarios', icon: 'pi pi-user', shortcut: 'ctrl+O' },
-                    { label: 'Gráficas', icon: 'pi pi-chart-line', badge: '2', shortcut: 'ctrl+D', routerLink:'/graficas'},
-                    { label: 'Reportes', icon: 'pi pi-file', badge: '2', shortcut: 'ctrl+F', routerLink:'/graficas'}
+                    { label: 'Usuarios', icon: 'pi pi-user', shortcut: 'ctrl+O', visible: this.permsSvc.hasPermission('group:view')},
+                    { label: 'Gráficas', icon: 'pi pi-chart-line', badge: '2', shortcut: 'ctrl+D', routerLink:'/graficas', visible: this.permsSvc.hasPermission('group:view')},
+                    { label: 'Reportes', icon: 'pi pi-file', badge: '2', shortcut: 'ctrl+F', routerLink:'/graficas', visible: this.permsSvc.hasPermission('group:view')}
                 ]
                 },
                 {
@@ -86,7 +89,7 @@ export class Sidebar implements OnInit{
                     label: 'Versión',
                     items: [
                         { 
-                            label: 'v1.0.1', 
+                            label: 'v1.0.2', 
                             icon: 'pi pi-info-circle',
                             disabled: true
                         }
