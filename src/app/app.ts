@@ -7,7 +7,7 @@ import { HasPermissionDirective } from './directives/has-permission.directive';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ButtonModule, HasPermissionDirective],
+  imports: [RouterOutlet, ButtonModule /* , HasPermissionDirective*/],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

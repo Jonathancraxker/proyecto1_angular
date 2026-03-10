@@ -167,9 +167,10 @@ export class Groups implements OnInit {
 
     getSeverity(nivel: string) {
         switch (nivel) {
-            case 'Avanzado': return 'success';
-            case 'Intermedio': return 'warn';
-            case 'Principiante': return 'info';
+            case 'Hecho': return 'success';
+            case 'En progreso': return 'info';
+            case 'Pendiente': return 'warn';
+            case 'Bloqueado': return 'danger';
             default: return 'secondary';
         }
     }

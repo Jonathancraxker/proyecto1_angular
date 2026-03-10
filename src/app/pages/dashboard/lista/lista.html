@@ -1,0 +1,113 @@
+<div class="flex flex-column align-items-center justify-content-center py-2 gap-4">
+    <div class="w-full px-1" style="max-width: 95vw;">
+        
+        <div class="flex align-items-center gap-3 p-3 surface-card border-round shadow-2 mb-3" style="background-color: #1e1e1e; border: 1px solid #333;">
+            <span class="text-secondary font-bold mr-2"><i class="pi pi-filter mr-1"></i> Filtros rápidos:</span>
+            <p-selectButton 
+                [options]="opcionesFiltro" 
+                [(ngModel)]="filtroActivo" 
+                optionLabel="label" 
+                optionValue="value">
+            </p-selectButton>
+        </div>
+
+        <div class="card p-4 shadow-2 border-round surface-card">
+            <p-toast />
+            
+            <p-toolbar class="mb-4">
+                <ng-template #start>
+                    <p-button label="Nuevo Ticket" icon="pi pi-plus" class="mr-2" (onClick)="openNew()" />
+                </ng-template>
+            </p-toolbar>
+
+            <p-table #dt [value]="ticketsFiltrados" [rows]="10" [paginator]="true" 
+                     [globalFilterFields]="['id', 'titulo', 'responsable', 'estado']" 
+                     [(selection)]="selectedTickets" [rowHover]="true" dataKey="id"
+                     styleClass="p-datatable-sm">
+                
+                <ng-template #caption>
+                    <div class="flex items-center justify-between">
+                        <h5 class="m-0 text-xl font-bold">Listado de Tickets</h5>
+                        <p-iconfield>
+                            <p-inputicon class="pi pi-search" />
+                            <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Buscar..." />
+                        </p-iconfield>
+                    </div>
+                </ng-template>
+
+                <ng-template #header>
+                    <tr>
+                        <th style="width: 3rem"><p-tableHeaderCheckbox /></th>
+                        <th pSortableColumn="id">ID <p-sortIcon field="id" /></th>
+                        <th pSortableColumn="titulo">Título <p-sortIcon field="titulo" /></th>
+                        <th pSortableColumn="estado">Estado <p-sortIcon field="estado" /></th>
+                        <th pSortableColumn="responsable">Asignado <p-sortIcon field="responsable" /></th>
+                        <th pSortableColumn="prioridad">Prioridad <p-sortIcon field="prioridad" /></th>
+                        <th pSortableColumn="fechaLimite">Fecha Límite <p-sortIcon field="fechaLimite" /></th>
+                        <th>Acciones</th>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th>
+                            <p-select [options]="statuses" (onChange)="dt.filter($event.value, 'estado', 'equals')" 
+                                      placeholder="Filtrar Estado" [showClear]="true" class="w-full" />
+                        </th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+
+                <ng-template #body let-ticket>
+                    <tr>
+                        <td><p-tableCheckbox [value]="ticket" /></td>
+                        <td class="font-mono">{{ ticket.id }}</td>
+                        <td class="font-bold">{{ ticket.titulo }}</td>
+                        <td><p-tag [value]="ticket.estado" [severity]="getSeverity(ticket.estado)" /></td>
+                        <td>{{ ticket.responsable }}</td>
+                        <td>{{ ticket.prioridad }}</td>
+                        <td>{{ ticket.fechaLimite }}</td>
+                        <td>
+                            <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editTicket(ticket)" />
+                            <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteTicket(ticket)" />
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
+            <p-dialog [(visible)]="ticketDialog" [style]="{ width: '500px' }" header="Detalle del Ticket" [modal]="true" styleClass="p-fluid">
+                <ng-template #content>
+                    <div class="flex flex-column gap-3">
+                        <div>
+                            <label class="block font-bold mb-1">Título</label>
+                            <input type="text" pInputText [(ngModel)]="ticket.titulo" required autofocus class="w-full" />
+                        </div>
+                        <div>
+                            <label class="block font-bold mb-1">Descripción</label>
+                            <textarea pTextarea [(ngModel)]="ticket.descripcion" rows="3" class="w-full"></textarea>
+                        </div>
+                        <div class="grid">
+                            <div class="col-6">
+                                <label class="block font-bold mb-1">Estado</label>
+                                <p-select [(ngModel)]="ticket.estado" [options]="statuses" placeholder="Selecciona" class="w-full"></p-select>
+                            </div>
+                            <div class="col-6">
+                                <label class="block font-bold mb-1">Asignado</label>
+                                <input type="text" pInputText [(ngModel)]="ticket.responsable" class="w-full" />
+                            </div>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template #footer>
+                    <p-button label="Cancelar" icon="pi pi-times" text (click)="hideDialog()" />
+                    <p-button label="Guardar" icon="pi pi-check" (click)="hideDialog()" />
+                </ng-template>
+            </p-dialog>
+
+            <p-confirmdialog [style]="{ width: '450px' }" />
+        </div>
+    </div>
+</div>

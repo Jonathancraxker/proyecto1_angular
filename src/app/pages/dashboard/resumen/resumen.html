@@ -1,0 +1,47 @@
+    <div class="grid mb-4">
+        <div class="col-12 md:col-6 lg:col-2"> <p-card header="Total" styleClass="border-left-3 border-orange-500 shadow-2">
+                <span class="text-4xl font-bold">{{resumen.total}}</span>
+            </p-card>
+        </div>
+        <div class="col-12 md:col-6 lg:col-3">
+            <p-card header="Pendientes" styleClass="border-left-3 border-blue-500 shadow-2">
+                <span class="text-4xl font-bold">{{resumen.pendiente}}</span>
+            </p-card>
+        </div>
+        <div class="col-12 md:col-6 lg:col-2">
+            <p-card header="En Progreso" styleClass="border-left-3 border-yellow-500 shadow-2">
+                <span class="text-4xl font-bold">{{resumen.enProgreso}}</span>
+            </p-card>
+        </div>
+        <div class="col-12 md:col-6 lg:col-3">
+            <p-card header="Hecho" styleClass="border-left-3 border-green-500 shadow-2">
+                <span class="text-4xl font-bold">{{resumen.hecho}}</span>
+            </p-card>
+        </div>
+        <div class="col-12 md:col-6 lg:col-2">
+            <p-card header="Bloqueados" styleClass="border-left-3 border-red-500 shadow-2">
+                <span class="text-4xl font-bold">{{resumen.bloqueado}}</span>
+            </p-card>
+        </div>
+    </div>
+
+    <p-card header="Tickets Recientes" styleClass="shadow-2">
+        <p-table [value]="ticketsRecientes" [rows]="5" styleClass="p-datatable-sm">
+            <ng-template #header>
+                <tr>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Estado</th>
+                    <th>Prioridad</th>
+                </tr>
+            </ng-template>
+            <ng-template #body let-ticket>
+                <tr>
+                    <td>{{ticket.id}}</td>
+                    <td>{{ticket.titulo}}</td>
+                    <td>{{ticket.estado}}</td>
+                    <td>{{ticket.prioridad}}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </p-card>

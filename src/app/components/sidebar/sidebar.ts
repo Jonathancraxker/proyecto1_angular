@@ -39,10 +39,10 @@ export class Sidebar implements OnInit{
                         visible: this.permsSvc.hasPermission('group:view')
                     },
                     {
-                        label: 'Configuración',
-                        icon: 'pi pi-cog',
-                        shortcut: 'ctrl+c',
-                        routerLink: '',
+                        label: 'Dashboard',
+                        icon: 'pi pi-chart-bar',
+                        shortcut: 'ctrl+D',
+                        routerLink: '/dashboard',
                         visible: this.permsSvc.hasPermission('group:view')
                     }
                 ]
@@ -64,7 +64,7 @@ export class Sidebar implements OnInit{
                         label: 'Groups',
                         icon: 'pi pi-users',
                         badge: '2',
-                        shortcut: 'ctrl+U',
+                        shortcut: 'ctrl+G',
                         routerLink: '/groups',
                         visible: this.permsSvc.hasPermission('group:view')
                     }
@@ -76,9 +76,9 @@ export class Sidebar implements OnInit{
             {
                 label: 'Administrador',
                 items: [
-                    { label: 'Usuarios', icon: 'pi pi-user', shortcut: 'ctrl+O', visible: this.permsSvc.hasPermission('group:view')},
-                    { label: 'Gráficas', icon: 'pi pi-chart-line', badge: '2', shortcut: 'ctrl+D', routerLink:'/graficas', visible: this.permsSvc.hasPermission('group:view')},
-                    { label: 'Reportes', icon: 'pi pi-file', badge: '2', shortcut: 'ctrl+F', routerLink:'/graficas', visible: this.permsSvc.hasPermission('group:view')}
+                    { label: 'Usuarios', icon: 'pi pi-user', shortcut: 'ctrl+U', routerLink: '/admin-user', visible: this.permsSvc.hasPermission('group:view')},
+                    { label: 'Gráficas', icon: 'pi pi-chart-line', badge: '2', routerLink:'/graficas', visible: this.permsSvc.hasPermission('group:view')},
+                    { label: 'Reportes', icon: 'pi pi-file', badge: '2', routerLink:'/graficas', visible: this.permsSvc.hasPermission('group:view')}
                 ]
                 },
                 {
@@ -129,16 +129,22 @@ export class Sidebar implements OnInit{
     this.perfil();
   }
   
-  @HostListener('window:keydown.control.u', ['$event'])
+  @HostListener('window:keydown.control.g', ['$event'])
   onGroups(event: any) {
     event.preventDefault();
     this.groups();
   }
 
   @HostListener('window:keydown.control.d', ['$event'])
-  onGraficas(event: any) {
+  onDashboard(event: any) {
     event.preventDefault();
-    this.graficas();
+    this.dashboard();
+  }
+
+  @HostListener('window:keydown.control.u', ['$event'])
+  onUsers(event: any) {
+    event.preventDefault();
+    this.Users();
   }
 
     //funciones:
@@ -155,8 +161,12 @@ export class Sidebar implements OnInit{
     this.router.navigate(['/groups'])
   }
 
-  graficas() {
-    this.router.navigate(['/graficas'])
+  dashboard() {
+    this.router.navigate(['/dashboard'])
+  }
+
+  Users() {
+    this.router.navigate(['/admin-user'])
   }
 
   logout() {

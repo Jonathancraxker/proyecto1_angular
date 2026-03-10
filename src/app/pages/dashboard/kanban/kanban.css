@@ -1,0 +1,68 @@
+.kanban-container {
+    background-color: #121212; /* Fondo ANTEIKU */
+    min-height: calc(100vh - 200px);
+}
+
+.kanban-column {
+    background-color: #1e1e1e;
+    border-radius: 12px;
+    border: 1px solid #333;
+}
+
+.kanban-header {
+    color: #f8f9fa;
+    border-bottom: 2px solid #3b82f6; /* Acento azul */
+}
+
+.kanban-list {
+    min-height: 150px;
+}
+
+.ticket-card {
+    background-color: #262626;
+    border: 1px solid #404040;
+}
+
+.ticket-card:hover {
+    border-color: #3b82f6;
+    background-color: #2d2d2d;
+    transform: translateY(-2px);
+}
+
+.ticket-id {
+    color: #888;
+}
+
+.ticket-date {
+    color: #aaa;
+}
+
+/* Estilos de animación para el arrastre */
+.cdk-drag-preview {
+  box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+  border-radius: 8px;
+  background-color: #262626;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.1;
+  background: #333;
+  border: 2px dashed #555;
+  border-radius: 8px;
+}
+
+::ng-deep .kanban-dialog .p-dialog-content,
+::ng-deep .kanban-dialog .p-dialog-header,
+::ng-deep .kanban-dialog .p-dialog-footer {
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
+    border-color: #333 !important;
+}
+
+::ng-deep .kanban-dialog input,
+::ng-deep .kanban-dialog textarea,
+::ng-deep .kanban-dialog .p-select {
+    background-color: #2a2a2a !important;
+    color: white !important;
+    border: 1px solid #444 !important;
+}

@@ -35,6 +35,33 @@ export const routes: Routes = [
                 path: 'groups',
                 loadComponent: () => import('./pages/groups/groups').then(m => m.Groups)
             },
+            {
+            path: 'admin-user',
+            loadComponent: () => import('./pages/admin-user/admin-user').then(m => m.AdminUser)
+            },
+            {
+            path: 'dashboard/:id',
+            loadComponent: () => import('./pages/dashboard/dashboard').then(m => m.Dashboard),
+            children: [
+                {
+                  path: 'resumen', // Vista de resumen
+                loadComponent: () => import('./pages/dashboard/resumen/resumen').then(m => m.Resumen)
+                },
+                {
+                  path: 'kanban', // Vista de tablero
+                loadComponent: () => import('./pages/dashboard/kanban/kanban').then(m => m.Kanban)
+                },
+                {
+                  path: 'lista', // Vista de tabla
+                loadComponent: () => import('./pages/dashboard/lista/lista').then(m => m.Lista)
+                },
+                {
+                  path: 'users', // Vista de tabla
+                loadComponent: () => import('./pages/dashboard/users/users').then(m => m.Users)
+                },
+                { path: '', redirectTo: 'resumen', pathMatch: 'full' }
+            ]
+            }
         ]
-    }
+    },
 ];
