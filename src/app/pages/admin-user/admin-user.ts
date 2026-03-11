@@ -10,13 +10,14 @@ import { MultiSelectModule } from 'primeng/multiselect'; // Para gestionar múlt
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
+import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
 @Component({
   selector: 'app-admin-user',
   standalone: true,
   imports: [
     CommonModule, FormsModule, TableModule, TagModule, ButtonModule, 
-    InputTextModule, DialogModule, MultiSelectModule, ToastModule, ConfirmDialogModule
+    InputTextModule, DialogModule, MultiSelectModule, ToastModule, ConfirmDialogModule, HasPermissionDirective
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './admin-user.html',

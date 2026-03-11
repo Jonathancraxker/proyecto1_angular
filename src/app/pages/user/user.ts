@@ -16,10 +16,19 @@ import { PasswordModule } from 'primeng/password';
 import { DividerModule } from 'primeng/divider';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { TableModule } from 'primeng/table'; // <--- Importante añadir
+import { TagModule } from 'primeng/tag';     // <--- Importante añadir
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-user',
-  imports: [CardModule, ButtonModule, FormsModule, FloatLabelModule, InputGroupModule, InputTextModule, InputGroupAddonModule, MessageModule, InputMaskModule, ToastModule, InputNumberModule, PasswordModule, DividerModule, SelectButtonModule, ReactiveFormsModule, ConfirmDialogModule],
+  imports: [
+    CommonModule, CardModule, ButtonModule, FormsModule, FloatLabelModule, 
+    InputGroupModule, InputTextModule, InputGroupAddonModule, MessageModule, 
+    InputMaskModule, ToastModule, InputNumberModule, PasswordModule, 
+    DividerModule, SelectButtonModule, ReactiveFormsModule, ConfirmDialogModule,
+    TableModule, TagModule
+  ],
   standalone: true,
   providers: [MessageService, ConfirmationService],
   templateUrl: './user.html',
@@ -34,10 +43,20 @@ export class User implements OnInit {
   exampleForm: FormGroup;
   formSubmitted: boolean = false;
 
-  stateOptions: any[] = [
-    { label: 'Sí', value: 'SI' },
-    { label: 'No', value: 'NO' }
+  // Lista de tickets asignados a Jonathan (Paso 6)
+  ticketsAsignados = [
+    { id: 'TK-101', titulo: 'Corregir API Login', estado: 'En progreso', prioridad: 'Alta' },
+    { id: 'TK-105', titulo: 'Diseño de Perfil', estado: 'Hecho', prioridad: 'Media' },
+    { id: 'TK-110', titulo: 'Testing de Seguridad', estado: 'Pendiente', prioridad: 'Alta' }
   ];
+
+  resumenCarga = {
+    abiertos: 1,
+    progreso: 1,
+    hechos: 1
+  };
+
+  stateOptions: any[] = [{ label: 'Sí', value: 'SI' }, { label: 'No', value: 'NO' }];
 
   constructor() {
     this.exampleForm = this.fb.group({
@@ -69,6 +88,16 @@ export class User implements OnInit {
     });
   }
 
+  getSeverity(estado: string) {
+    switch (estado) {
+        case 'Hecho': return 'success';
+        case 'En progreso': return 'info';
+        case 'Pendiente': return 'warn';
+        default: return 'secondary';
+    }
+  }
+
+  // ... (Tus otros métodos passwordsMatchValidator, isInvalid, onSubmit, onDelete se mantienen igual)
   passwordsMatchValidator(form: FormGroup) {
     const password = form.get('password')?.value;
     const passwordConfirm = form.get('passwordConfirm')?.value;

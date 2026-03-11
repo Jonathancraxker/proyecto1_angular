@@ -14,11 +14,11 @@
         <div class="card p-4 shadow-2 border-round surface-card">
             <p-toast />
             
-            <p-toolbar class="mb-4">
+            <!-- <p-toolbar class="mb-4">
                 <ng-template #start>
                     <p-button label="Nuevo Ticket" icon="pi pi-plus" class="mr-2" (onClick)="openNew()" />
                 </ng-template>
-            </p-toolbar>
+            </p-toolbar> -->
 
             <p-table #dt [value]="ticketsFiltrados" [rows]="10" [paginator]="true" 
                      [globalFilterFields]="['id', 'titulo', 'responsable', 'estado']" 
@@ -71,8 +71,8 @@
                         <td>{{ ticket.prioridad }}</td>
                         <td>{{ ticket.fechaLimite }}</td>
                         <td>
-                            <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editTicket(ticket)" />
-                            <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteTicket(ticket)" />
+                            <p-button *ifHasPermission="'group:edit'"  icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editTicket(ticket)" />
+                            <p-button *ifHasPermission="'group:delete'" icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteTicket(ticket)" />
                         </td>
                     </tr>
                 </ng-template>

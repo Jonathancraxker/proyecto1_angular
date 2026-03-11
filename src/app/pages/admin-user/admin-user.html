@@ -7,7 +7,7 @@
                 <h2 class="text-3xl font-bold m-0 text-white">Gestión Global de Usuarios</h2>
                 <p class="text-secondary m-0">Panel de Control para SuperAdmin</p>
             </div>
-            <p-button label="Nuevo Usuario" icon="pi pi-user-plus" (onClick)="openNew()" />
+            <p-button *ifHasPermission="'users:add'" label="Nuevo Usuario" icon="pi pi-user-plus" (onClick)="openNew()" />
         </div>
 
         <p-table #dt [value]="users" [rows]="10" [paginator]="true" [globalFilterFields]="['nombre', 'email']" 
@@ -36,8 +36,8 @@
                         </div>
                     </td>
                     <td>
-                        <p-button icon="pi pi-pencil" [rounded]="true" [outlined]="true" class="mr-2" (onClick)="editUser(u)" />
-                        <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (onClick)="deleteUser(u)" />
+                        <p-button *ifHasPermission="'users:edit'" icon="pi pi-pencil" [rounded]="true" [outlined]="true" class="mr-2" (onClick)="editUser(u)" />
+                        <p-button *ifHasPermission="'users:delete'" icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (onClick)="deleteUser(u)" />
                     </td>
                 </tr>
             </ng-template>

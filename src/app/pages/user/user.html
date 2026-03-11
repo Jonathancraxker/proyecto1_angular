@@ -1,12 +1,15 @@
-<div class="flex align-items-center justify-content-center min-h-screen mt-3 pb-3">
+<div class="p-4 mt-2">
     <p-toast />
     <p-confirmDialog />
 
-    <p-card [style]="{ width: '25rem' }">
-        <ng-template #title> Mis datos </ng-template>
-        <ng-template #subtitle> Ingresa tus datos: </ng-template>
+    <div class="grid">
+        
+        <div class="col-12 lg:col-4">
+            <p-card styleClass="shadow-2 h-full">
+                <ng-template #title> Mis datos </ng-template>
+                <ng-template #subtitle> Gestiona tu información personal </ng-template>
 
-        <form id="registerForm" [formGroup]="exampleForm" (ngSubmit)="onSubmit()" class="flex flex-column gap-3 mt-3">
+                <form id="registerForm" [formGroup]="exampleForm" (ngSubmit)="onSubmit()" class="flex flex-column gap-3 mt-3">
             <div class="flex flex-column gap-1">
                 <p-inputgroup>
                     <p-inputgroup-addon><i class="pi pi-user"></i></p-inputgroup-addon>
@@ -121,11 +124,72 @@
             </div>
         </form>
 
-        <ng-template #footer>
-            <div class="flex justify-content-between gap-2">
-                <p-button label="Borrar Cuenta" icon="pi pi-trash" severity="danger" [outlined]="true" (onClick)="onDelete()" />
-                <button ifHasPermission="group:ad" form="registerForm" pButton severity="primary" type="submit" label="Actualizar" icon="pi pi-save" [disabled]="exampleForm.invalid || exampleForm.get('edad')?.value === 'NO'"></button>
+                <ng-template #footer>
+                    <div class="flex justify-content-between gap-2 border-top-1 border-gray-800 pt-3">
+                        <p-button label="Eliminar" icon="pi pi-trash" severity="danger" [outlined]="true" (onClick)="onDelete()" />
+                        <button form="registerForm" pButton severity="primary" type="submit" label="Actualizar" icon="pi pi-save" [disabled]="exampleForm.invalid"></button>
+                    </div>
+                </ng-template>
+            </p-card>
+        </div>
+
+        <div class="col-12 lg:col-8">
+            <div class="flex flex-column gap-4">
+                
+                <div class="grid">
+                    <div class="col-12 md:col-4">
+                        <p-card styleClass="bg-blue-900 border-left-3 border-blue-500 shadow-2 py-1">
+                            <span class="text-white block mb-1 font-bold">Abiertos</span>
+                            <span class="text-4xl font-bold text-white">{{resumenCarga.abiertos}}</span>
+                        </p-card>
+                    </div>
+                    <div class="col-12 md:col-4">
+                        <p-card styleClass="bg-yellow-900 border-left-3 border-yellow-500 shadow-2 py-1">
+                            <span class="text-white block mb-1 font-bold">En Progreso</span>
+                            <span class="text-4xl font-bold text-white">{{resumenCarga.progreso}}</span>
+                        </p-card>
+                    </div>
+                    <div class="col-12 md:col-4">
+                        <p-card styleClass="bg-green-900 border-left-3 border-green-500 shadow-2 py-1">
+                            <span class="text-white block mb-1 font-bold">Hechos</span>
+                            <span class="text-4xl font-bold text-white">{{resumenCarga.hechos}}</span>
+                        </p-card>
+                    </div>
+                </div>
+
+                <p-card styleClass="shadow-2 border-round">
+                    <ng-template #title> 
+                        <div class="flex align-items-center gap-2">
+                            <i class="pi pi-list text-primary"></i>
+                            <span>Mis Tickets Asignados</span>
+                        </div>
+                    </ng-template>
+                    
+                    <p-table [value]="ticketsAsignados" [rows]="5" styleClass="p-datatable-sm mt-3">
+                        <ng-template #header>
+                            <tr>
+                                <th>ID</th>
+                                <th>Título</th>
+                                <th>Prioridad</th>
+                                <th>Estado</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template #body let-ticket>
+                            <tr>
+                                <td class="font-mono text-blue-400 font-bold">{{ticket.id}}</td>
+                                <td>{{ticket.titulo}}</td>
+                                <td>
+                                    <p-tag [value]="ticket.prioridad" [severity]="ticket.prioridad === 'Alta' ? 'danger' : 'warn'"></p-tag>
+                                </td>
+                                <td>
+                                    <p-tag [value]="ticket.estado" [severity]="getSeverity(ticket.estado)"></p-tag>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </p-card>
+
             </div>
-        </ng-template>
-    </p-card>
+        </div>
+    </div>
 </div>

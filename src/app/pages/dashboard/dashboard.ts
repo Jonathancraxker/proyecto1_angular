@@ -1,49 +1,85 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, RouterOutlet, RouterLink } from '@angular/router'; // Para capturar el :id de la ruta
+import { ActivatedRoute, RouterOutlet, RouterLink } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
 import { TabsModule } from 'primeng/tabs';
 
+// Nuevos Imports para el Modal de Creación
+import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
+import { SelectModule } from 'primeng/select';
+import { FormsModule } from '@angular/forms';
+import { HasPermissionDirective } from '../../directives/has-permission.directive';
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CardModule, ButtonModule, TableModule, CommonModule, TabsModule, RouterOutlet, RouterLink],
+  imports: [
+    HasPermissionDirective, CardModule, ButtonModule, TableModule, CommonModule, 
+    TabsModule, RouterOutlet, RouterLink,
+    DialogModule, InputTextModule, TextareaModule, SelectModule, FormsModule
+  ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
 export class Dashboard implements OnInit {
   activeTab: number = 0;
-  // Inyección de dependencias para capturar el parámetro de la URL
   private route = inject(ActivatedRoute);
-  
   groupId: string | null = '';
 
-  // 1. Resumen de tickets solicitado 
-  resumen = {
-    total: 25,
-    pendiente: 10,
-    enProgreso: 5,
-    hecho: 8,
-    bloqueado: 2
+  // Control del Modal (Paso 8)
+  displayCreateModal: boolean = false;
+  
+  // Objeto para el nuevo ticket
+  nuevoTicket: any = {
+    titulo: '',
+    descripcion: '',
+    estado: 'Pendiente',
+    prioridad: 'Media',
+    responsable: ''
   };
 
-  // 2. Mini-lista de tickets recientes 
-  ticketsRecientes = [
-    { id: 'TK-001', titulo: 'Error en Login', estado: 'Pendiente', prioridad: 'Alta' },
-    { id: 'TK-002', titulo: 'Ajustar estilos Sidebar', estado: 'En Progreso', prioridad: 'Media' },
-    { id: 'TK-003', titulo: 'Revisar DB', estado: 'Hecho', prioridad: 'Baja' }
+  // Opciones de prioridad (como las definimos antes)
+  prioridades = [
+    { label: 'Extrema', value: 'Extrema' },
+    { label: 'Alta', value: 'Alta' },
+    { label: 'Media', value: 'Media' },
+    { label: 'Baja', value: 'Baja' }
   ];
 
+  estados = [
+    { label: 'Pendiente', value: 'Pendiente' },
+    { label: 'En proceso', value: 'En proceso' },
+    { label: 'Revisión', value: 'Revisión' },
+    { label: 'Hecho', value: 'Hecho' },
+    { label: 'Bloqueado', value: 'Bloqueado' }
+];
+
   ngOnInit() {
-    // Captura el ID del grupo que seleccionaste en el Home
     this.groupId = this.route.snapshot.paramMap.get('id');
-    console.log('Cargando datos para el grupo:', this.groupId);
   }
 
-  // 3. Acción para el botón solicitado [cite: 20]
+  // Abrir modal (Paso 8)
   crearTicket() {
-    console.log('Abriendo modal para nuevo ticket...');
+    this.nuevoTicket = {
+      titulo: '',
+      descripcion: '',
+      estado: 'Pendiente',
+      prioridad: 'Media',
+      responsable: 'Jonathan' // Se asigna el creador por defecto como dice el PDF
+    };
+    this.displayCreateModal = true;
+  }
+
+  // Acción de guardar
+  guardarTicket() {
+    if (this.nuevoTicket.titulo.trim()) {
+      console.log('Insertando en base de datos:', this.nuevoTicket);
+      // Aquí iría la lógica para enviar al servicio
+      this.displayCreateModal = false;
+    }
   }
 }
