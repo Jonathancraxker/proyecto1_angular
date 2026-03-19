@@ -4,6 +4,7 @@ import { ButtonModule } from 'primeng/button';
 
 import { PermissionsService } from './services/permissions.service';
 import { HasPermissionDirective } from './directives/has-permission.directive';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -13,17 +14,18 @@ import { HasPermissionDirective } from './directives/has-permission.directive';
 })
 export class App {
 
-  constructor(private permsSvc: PermissionsService) {
-    // Simular de permisos que vienen del JWT cuando hacemos login
-    const jwtPerms = [
-      // Groups
-      'group:view', 'groups:view', 'group:add', 'groups:add', 'group:edit', 'groups:edit', 'group:delete', 'groups:delete',
-      // Users
-      'user:view', 'users:view', 'user:add', 'users:add', 'user:edit', 'users:edit', 'user:delete', 'users:delete',
-      // Tickets
-      'ticket:view', 'tickets:view', 'ticket:add', 'tickets:add', 'ticket:edit', 'tickets:edit', 'ticket:delete', 'tickets:delete'
-    ];
-    this.permsSvc.setPermissions(jwtPerms);
+  constructor(private authSvc: AuthService) {
+    // // Simular de permisos que vienen del JWT cuando hacemos login
+    // const jwtPerms = [
+    //   // Groups
+    //   'group:view', 'group:add', 'group:edit', 'group:delete', 'group:add:member', 'group:remove:member', 'group:manage',
+    //   // Users
+    //   'user:view', 'user:add', 'user:edit', 'user:edit:profile', 'user:delete', 'user:assign', 'user:view:all', 'user:edite:permissions', 'user:deactivate', 'user:activate','user:manage',
+    //   // Tickets
+    //   'ticket:view', 'ticket:add', 'ticket:edit', 'ticket:delete', 'ticket:edit:state', 'ticket:edit:comment', 'ticket:edit:comment', 'ticket:edit:priority', 'ticket:edit:deadline', 'ticket:edit:asiggn', 'ticket:manage',
+    // ];
+    this.authSvc.checkSession(); // Recuperar permisos si ya se hizo login antes
+
   }
 
   protected readonly title = signal('proyecto_01');

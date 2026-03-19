@@ -1,5 +1,5 @@
 <div class="flex align-items-center justify-content-center min-h-screen">
-    <p-card [style]="{ width: '25rem' }">
+    <p-toast /> <p-card [style]="{ width: '25rem' }">
         <ng-template #title> Iniciar sesión </ng-template>
         <ng-template #subtitle> Ingresa tus datos: </ng-template>
             <form id="loginForm" [formGroup]="exampleForm" (ngSubmit)="onSubmit()" class="flex flex-column gap-3 mt-3">

@@ -116,12 +116,6 @@
                     }
                 }
             </div>
-
-            <div class="flex flex-column gap-1">
-                <p>¿Eres mayor de edad?</p>
-                <p-selectButton [options]="stateOptions" formControlName="edad" optionLabel="label" optionValue="value" class="w-full" />
-                @if (exampleForm.get('edad')?.value === 'NO') { <p-message severity="error" size="small" variant="simple">Registro solo para mayores de edad</p-message> }
-            </div>
         </form>
 
                 <ng-template #footer>

@@ -7,12 +7,11 @@
                 <h2 class="text-3xl font-bold m-0 text-white">Gestión Global de Usuarios</h2>
                 <p class="text-secondary m-0">Panel de Control para SuperAdmin</p>
             </div>
-            <p-button *ifHasPermission="'users:add'" label="Nuevo Usuario" icon="pi pi-user-plus" (onClick)="openNew()" />
+            <p-button *ifHasPermission="'user:add'" label="Add User" icon="pi pi-user-plus" (onClick)="openNew()" />
         </div>
 
         <p-table #dt [value]="users" [rows]="10" [paginator]="true" [globalFilterFields]="['nombre', 'email']" 
                  styleClass="p-datatable-sm p-datatable-gridlines">
-            
             <ng-template #header>
                 <tr>
                     <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre" /></th>
@@ -36,8 +35,8 @@
                         </div>
                     </td>
                     <td>
-                        <p-button *ifHasPermission="'users:edit'" icon="pi pi-pencil" [rounded]="true" [outlined]="true" class="mr-2" (onClick)="editUser(u)" />
-                        <p-button *ifHasPermission="'users:delete'" icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (onClick)="deleteUser(u)" />
+                        <p-button *ifHasPermission="'user:edit'" icon="pi pi-pencil" [rounded]="true" [outlined]="true" class="mr-2" (onClick)="editUser(u)" />
+                        <p-button *ifHasPermission="'user:delete'" icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (onClick)="deleteUser(u)" />
                     </td>
                 </tr>
             </ng-template>
@@ -45,32 +44,39 @@
     </div>
 </div>
 
-<p-dialog [(visible)]="userDialog" [header]="'Configurar Usuario'" [modal]="true" [style]="{ width: '450px' }" styleClass="p-fluid">
+<p-dialog [(visible)]="userDialog" [header]="user.id ? 'Editar Usuario' : 'Nuevo Usuario'" [modal]="true" [style]="{ width: '500px' }" styleClass="p-fluid">
     <ng-template #content>
         <div class="field mb-3">
-            <label class="block font-bold mb-2">Nombre Completo</label>
+            <label class="block font-bold mb-2 text-white-alpha-70">Nombre Completo</label>
             <input type="text" pInputText [(ngModel)]="user.nombre" required autofocus />
         </div>
         <div class="field mb-3">
-            <label class="block font-bold mb-2">Email</label>
+            <label class="block font-bold mb-2 text-white-alpha-70">Email</label>
             <input type="email" pInputText [(ngModel)]="user.email" required />
         </div>
         
-        <div class="field">
+        <div class="field mt-4">
             <label class="block font-bold mb-2 text-primary">Gestionar Permisos</label>
-            <p-multiselect [options]="permisosDisponibles" 
-                           [(ngModel)]="user.permisos" 
-                           optionLabel="name" 
-                           optionValue="code"
-                           placeholder="Asignar permisos al usuario" 
-                           display="chip" 
-                           class="w-full" />
+            <p-multiselect 
+                [options]="permisosDisponibles" 
+                [(ngModel)]="user.permisos" 
+                optionLabel="name" 
+                optionValue="code"
+                [filter]="true" 
+                filterBy="name"
+                [resetFilterOnHide]="true"
+                placeholder="Buscar y asignar permisos..." 
+                display="chip" 
+                [scrollHeight]="'200px'"
+                appendTo="body"
+                class="w-full">
+            </p-multiselect>
         </div>
     </ng-template>
 
     <ng-template #footer>
-        <p-button label="Cancelar" icon="pi pi-times" text (onClick)="userDialog = false" />
-        <p-button label="Guardar Usuario" icon="pi pi-check" (onClick)="saveUser()" />
+        <p-button label="Cancelar" icon="pi pi-times" [text]="true" severity="secondary" (onClick)="userDialog = false" />
+        <p-button [label]="user.id ? 'Guardar Cambios' : 'Crear Usuario'" icon="pi pi-check" (onClick)="saveUser()" />
     </ng-template>
 </p-dialog>
 

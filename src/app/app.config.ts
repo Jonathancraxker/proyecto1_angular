@@ -11,6 +11,7 @@ import { HasPermissionDirective } from './directives/has-permission.directive';
 
 import { routes } from './app.routes';
 import { PermissionsService } from './services/permissions.service';
+import { provideHttpClient } from '@angular/common/http';
 
 const MyPreset = definePreset(Aura, {
     semantic: {
@@ -44,6 +45,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes),
+    provideHttpClient(),
     PermissionsService,
     HasPermissionDirective
   ]

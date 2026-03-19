@@ -6,7 +6,6 @@ import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
 import { TabsModule } from 'primeng/tabs';
 
-// Nuevos Imports para el Modal de Creación
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';

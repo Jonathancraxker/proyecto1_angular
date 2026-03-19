@@ -36,20 +36,44 @@ export class AdminUser implements OnInit {
 
     // Lista maestra de permisos para el SuperAdmin (Punto 10)
     permisosDisponibles = [
-        { name: 'groups:view', code: 'groups:view' },
+        // USERS
+        { name: 'user:view', code: 'user:view' },
+        { name: 'user:add', code: 'user:add' },
+        { name: 'user:edit', code: 'user:edit' },
+        { name: 'user:edit:profile', code: 'user:edit:profile' },
+        { name: 'user:delete', code: 'user:delete' },
+        { name: 'user:assign', code: 'user:assign' },
+        { name: 'user:view:all', code: 'user:view:all' },
+        { name: 'user:edite:permissions', code: 'user:edite:permissions' },
+        { name: 'user:deactivate', code: 'user:deactivate' },
+        { name: 'user:activate', code: 'user:activate' },
+        { name: 'user:manage', code: 'user:manage' },
+        // GROUPS
+        { name: 'group:view', code: 'group:view' },
         { name: 'group:add', code: 'group:add' },
         { name: 'group:edit', code: 'group:edit' },
         { name: 'group:delete', code: 'group:delete' },
-        { name: 'tickets:view', code: 'tickets:view' },
-        { name: 'tickets:edit', code: 'tickets:edit' },
-        { name: 'admin:all', code: 'admin:all' }
+        { name: 'group:add:member', code: 'group:add:member' },
+        { name: 'group:remove:member', code: 'group:remove:member' },
+        { name: 'group:manage', code: 'group:manage' },
+        // TICKETS
+        { name: 'ticket:view', code: 'ticket:view' },
+        { name: 'ticket:add', code: 'ticket:add' },
+        { name: 'ticket:edit', code: 'ticket:edit' },
+        { name: 'ticket:delete', code: 'ticket:delete' },
+        { name: 'ticket:edit:state', code: 'ticket:edit:state' },
+        { name: 'ticket:edit:comment', code: 'ticket:edit:comment' },
+        { name: 'ticket:edit:priority', code: 'ticket:edit:priority' },
+        { name: 'ticket:edit:deadline', code: 'ticket:edit:deadline' },
+        { name: 'ticket:edit:asiggn', code: 'ticket:edit:asiggn' },
+        { name: 'ticket:manage', code: 'ticket:manage' }
     ];
 
     ngOnInit() {
-        // Datos iniciales de ejemplo
         this.users = [
-            { id: 1, nombre: 'Jonathan Cruz', email: 'jonathan@uteq.edu.mx', permisos: ['admin:all', 'groups:view'], rol: 'SuperAdmin' },
-            { id: 2, nombre: 'Usuario Prueba', email: 'test@anteiku.com', permisos: ['groups:view'], rol: 'Editor' }
+            { id: 1, nombre: 'Jonathan Cruz', email: 'jonathan@uteq.edu.mx', permisos: ['user:manage', 'group:view'], rol: 'SuperAdmin' },
+            { id: 2, nombre: 'Usuario Prueba', email: 'test@anteiku.com', permisos: ['ticket:view'], rol: 'Editor' },
+            { id: 3, nombre: 'Usuario Demo', email: 'demo@anteiku.com', permisos: ['user:view'], rol: 'Visualizador' }
         ];
     }
 

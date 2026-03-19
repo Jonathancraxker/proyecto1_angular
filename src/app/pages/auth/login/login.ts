@@ -16,6 +16,8 @@ import { PasswordModule } from 'primeng/password';
 import { DividerModule } from 'primeng/divider';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 
+import { AuthService } from '../../../services/auth.service';
+
 @Component({
   selector: 'app-login',
   imports: [CardModule, 
@@ -30,29 +32,68 @@ import { BreadcrumbModule } from 'primeng/breadcrumb';
 })
 export class Login {
   private router = inject(Router);
+  private authService = inject(AuthService);
+
   fb = inject(FormBuilder);
   messageService = inject(MessageService);
     exampleForm: FormGroup;
     formSubmitted: boolean = false;
+    isLoading: boolean = false;
 
     constructor() {
         this.exampleForm = this.fb.group({
           email: ['', [Validators.required, Validators.email]],
           password: ['', [Validators.required, Validators.minLength(10),
-            Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/)
+            Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d@#$!%*?&]{10,}$/)
           ]],
         });
       }
 
-    onSubmit() {
-        this.formSubmitted = true;
-        if (this.exampleForm.valid) {
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Form Submitted', life: 3000 });
-            this.exampleForm.reset();
-            this.formSubmitted = false;
+    async onSubmit() {
+    this.formSubmitted = true;
+    
+    if (this.exampleForm.valid) {
+      this.isLoading = true;
+      
+      try {
+        // Obtenemos los datos del formulario
+        const credentials = this.exampleForm.value;
+        
+        // Llamamos al servicio (esto va a Koyeb)
+        const success = await this.authService.login(credentials);
+
+        if (success) {
+          this.messageService.add({ 
+            severity: 'success', 
+            summary: '¡Bienvenido!', 
+            detail: 'Sesión iniciada correctamente', 
+            life: 2000 
+          });
+          
+          // Navegamos al home
+          setTimeout(() => {
             this.router.navigate(['/home']);
-            }
+          }, 1000);
+        } else {
+          this.messageService.add({ 
+            severity: 'error', 
+            summary: 'Error', 
+            detail: 'Credenciales inválidas o sin permisos', 
+            life: 3000 
+          });
+        }
+      } catch (error) {
+        this.messageService.add({ 
+          severity: 'error', 
+          summary: 'Error de conexión', 
+          detail: 'No se pudo conectar con el servidor', 
+          life: 3000 
+        });
+      } finally {
+        this.isLoading = false;
+      }
     }
+  }
 
     isInvalid(controlName: string) {
         const control = this.exampleForm.get(controlName);

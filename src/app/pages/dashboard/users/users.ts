@@ -35,28 +35,47 @@ export class Users implements OnInit {
     users: any[] = [];
     user: any = {};
     userDialog: boolean = false;
+    
+    // Variables para la edición del grupo (Paso 7)
+    groupDialog: boolean = false;
+    groupName: string = 'Equipo DEV';
+    tempGroupName: string = ''; 
+
     submitted: boolean = false;
-    groupName: string = 'Equipo DEV'; // Configuración básica del grupo
 
     ngOnInit() {
-        // Lista de usuarios del grupo
         this.users = [
             { id: 1, nombre: 'Jonathan Cruz', email: 'jonathan@uteq.edu.mx', rol: 'Admin', fechaIngreso: '2026-01-20' },
             { id: 2, nombre: 'Emmanuel R.', email: 'emmanuel@dev.com', rol: 'Miembro', fechaIngreso: '2026-02-15' }
         ];
     }
 
+    // Modal para añadir usuarios
     openNew() {
         this.user = {};
         this.submitted = false;
         this.userDialog = true;
     }
 
+    // Modal para editar el nombre del grupo
     editGroupName() {
-        // Lógica para editar el nombre del grupo (Paso 7: Configuración básica)
-        this.messageService.add({ severity: 'info', summary: 'Configuración', detail: 'Editando nombre del grupo' });
+        this.tempGroupName = this.groupName; // Cargamos el nombre actual
+        this.groupDialog = true;
     }
 
+    saveGroupName() {
+        if (this.tempGroupName.trim()) {
+            this.groupName = this.tempGroupName;
+            this.groupDialog = false;
+            this.messageService.add({ 
+                severity: 'success', 
+                summary: 'Éxito', 
+                detail: 'Nombre del grupo actualizado' 
+            });
+        }
+    }
+
+    // ... (restos de métodos deleteUser y saveUser se mantienen igual)
     deleteUser(user: any) {
         this.confirmationService.confirm({
             message: `¿Estás seguro de eliminar a ${user.nombre} del grupo?`,

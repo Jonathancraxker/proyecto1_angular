@@ -36,45 +36,27 @@ export class Header implements OnInit {
                 routerLink: '/user'
             },
             {
-                label: 'Groups',
+                label: 'Grupos',
                 icon: 'pi pi-users',
                 routerLink: '/groups'
             },
             {
-                label: 'Gráficas',
-                icon: 'pi pi-chart-line'
+                label: 'Usuarios',
+                icon: 'pi pi-user-edit',
+                routerLink: '/admin-user'
             },
             {
-                label: 'Projects',
-                icon: 'pi pi-search',
+                label: 'Opciones',
                 items: [
                     {
-                        label: 'Core',
-                        icon: 'pi pi-bolt'
+                        label: 'Iniciar sesión',
+                        icon: 'pi pi-sign-in',
+                        routerLink: '/'
                     },
                     {
-                        label: 'Blocks',
-                        icon: 'pi pi-server'
-                    },
-                    {
-                        separator: true
-                    },
-                    {
-                        label: 'UI Kit',
-                        icon: 'pi pi-pencil'
-                    }
-                ]
-            },
-            {
-                label: 'Options',
-                items: [
-                    {
-                        label: 'Refresh',
-                        icon: 'pi pi-refresh'
-                    },
-                    {
-                        label: 'Export',
-                        icon: 'pi pi-upload'
+                        label: 'Registrarse',
+                        icon: 'pi pi-user-plus',
+                        routerLink: '/register'
                     },
                     {
                         label: 'Logout',

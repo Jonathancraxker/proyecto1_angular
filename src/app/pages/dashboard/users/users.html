@@ -3,10 +3,15 @@
     
     <div class="flex align-items-center justify-content-between mb-4 pb-3 border-bottom-1 border-gray-700">
         <div>
-            <span class="text-secondary block mb-1">Configuración del Espacio</span>
-            <h2 class="text-2xl font-bold m-0 text-white">{{groupName}}</h2>
+            <span class="text-secondary block mb-1 font-semibold">Configuración del Espacio</span>
+            <h2 class="text-3xl font-bold m-0 text-white">{{groupName}}</h2>
         </div>
-        <p-button *ifHasPermission="'group:edit'" icon="pi pi-pencil" label="Editar Grupo" severity="secondary" outlined (onClick)="editGroupName()" />
+        <p-button *ifHasPermission="'group:edit'" 
+                  icon="pi pi-pencil" 
+                  label="Editar Nombre" 
+                  severity="secondary" 
+                  outlined 
+                  (onClick)="editGroupName()" />
     </div>
 
     <p-toolbar class="mb-4">
@@ -42,8 +47,8 @@
                 <td>{{ user.email }}</td>
                 <td><p-tag [value]="user.rol" [severity]="user.rol === 'Admin' ? 'danger' : 'info'" /></td>
                 <td>{{ user.fechaIngreso }}</td>
-                <td *ifHasPermission="'group:delete'">
-                    <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteUser(user)" />
+                <td>
+                    <p-button *ifHasPermission="'group:delete'" icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteUser(user)" />
                 </td>
             </tr>
         </ng-template>
@@ -54,7 +59,6 @@
             <div class="field">
                 <label class="font-bold">Email del Usuario</label>
                 <input type="email" pInputText [(ngModel)]="user.email" placeholder="ejemplo@correo.com" />
-                <small class="text-secondary">Se enviará una invitación a este correo.</small>
             </div>
             <div class="field mt-3">
                 <label class="font-bold">Nombre (Opcional)</label>
@@ -64,6 +68,19 @@
         <ng-template #footer>
             <p-button label="Cancelar" icon="pi pi-times" text (click)="userDialog = false" />
             <p-button label="Añadir" icon="pi pi-check" (click)="saveUser()" />
+        </ng-template>
+    </p-dialog>
+
+    <p-dialog [(visible)]="groupDialog" [style]="{ width: '450px' }" header="Configuración del Grupo" [modal]="true" styleClass="p-fluid">
+        <ng-template #content>
+            <div class="field">
+                <label for="groupName" class="font-bold">Nombre del Espacio de Trabajo</label>
+                <input id="groupName" type="text" pInputText [(ngModel)]="tempGroupName" autofocus />
+            </div>
+        </ng-template>
+        <ng-template #footer>
+            <p-button label="Cancelar" icon="pi pi-times" text (click)="groupDialog = false" />
+            <p-button label="Guardar Cambios" icon="pi pi-check" (click)="saveGroupName()" />
         </ng-template>
     </p-dialog>
 

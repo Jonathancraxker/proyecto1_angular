@@ -68,7 +68,6 @@ export class User implements OnInit {
       nombre: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
       direccion: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
       telefono: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(10), Validators.pattern(/^\d{10}$/)]],
-      edad: ['', [Validators.required]],
       passwordConfirm: ['', [Validators.required]]
     }, { validators: this.passwordsMatchValidator });
   }
@@ -83,8 +82,7 @@ export class User implements OnInit {
       email: 'jonathan@ejemplo.com',
       nombre: 'Jonathan',
       direccion: 'De la Lealtad 23',
-      telefono: '4411625463',
-      edad: 'SI'
+      telefono: '4411625463'
     });
   }
 
