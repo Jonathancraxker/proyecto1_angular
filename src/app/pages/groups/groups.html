@@ -16,10 +16,6 @@
                     <p-button *ifHasPermission="'group:add'" label="New" icon="pi pi-plus" class="mr-2" (onClick)="openNew()" />
                     <p-button *ifHasPermission="'group:delete'" severity="danger" label="Delete" icon="pi pi-trash" outlined (onClick)="deleteSelectedProducts()" [disabled]="!selectedProducts || !selectedProducts.length" />
                 </ng-template>
-                <ng-template #end>
-                    <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import" auto customUpload class="mr-2 inline-block" [chooseButtonProps]="{ severity: 'primary' }" />
-                    <p-button label="Export" icon="pi pi-upload" severity="secondary" (onClick)="exportCSV($event)" />
-                </ng-template>
             </p-toolbar>
 
             <p-table #dt [value]="products" [rows]="10" [paginator]="true" [globalFilterFields]="['nombre', 'autor', 'nivel']" 

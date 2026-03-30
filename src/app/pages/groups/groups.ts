@@ -64,7 +64,6 @@ export class Groups implements OnInit {
     submitted: boolean = false;
     statuses!: any[];
     cols!: Column[];
-    exportColumns!: ExportColumn[];
 
     ngOnInit() {
         this.productService.getProducts().then((data: Product[]) => {
@@ -85,8 +84,6 @@ export class Groups implements OnInit {
             { field: 'tickets', header: 'Tickets' },
             { field: 'descripcion', header: 'Descripción' }
         ];
-
-        this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
     }
 
     openNew() {
@@ -202,9 +199,5 @@ export class Groups implements OnInit {
             this.productDialog = false;
             this.product = {};
         }
-    }
-
-    exportCSV(event: any) {
-        this.dt.exportCSV();
     }
 }

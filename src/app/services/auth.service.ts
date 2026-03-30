@@ -1,8 +1,11 @@
 import { inject, Injectable } from '@angular/core';
-
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom, tap } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../environments/environment';
 import { PermissionsService } from './permissions.service';
+import { Router } from '@angular/router';
+import { UserRegister, AuthResponse } from '../models/register.interface';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -10,46 +13,44 @@ import { PermissionsService } from './permissions.service';
 export class AuthService {
   private http = inject(HttpClient);
   private permsSvc = inject(PermissionsService);
+  private router = inject(Router);
   
-  // La URL base que te pasó tu profesor
-  private apiUrl = 'https://spatial-delcine-devemma-edfc3f92.koyeb.app';
+  private apiUrl = environment.apiUsuarios; // http://localhost:4000/anteiku
 
-  async login(credentials: any) {
-  try {
-    const response: any = await firstValueFrom(
-      this.http.post(`${this.apiUrl}/login`, credentials)
-    );
+  register(userData: UserRegister): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/signup`, userData);
+  }
 
-    // Si el login es exitoso (statusCode 200)
-    if (response && response.statusCode === 200) {
-      
-      // 1. Ahora pedimos los permisos a la ruta /permissions
-      const permsResponse: any = await firstValueFrom(
-        this.http.get(`${this.apiUrl}/permissions`)
+  async login(credentials: any): Promise<boolean> {
+    try {
+      const response: any = await firstValueFrom(
+        this.http.post(`${this.apiUrl}/login`, credentials)
       );
 
-      // 2. Buscamos los permisos en la respuesta (según tu primera imagen de la API)
-      if (permsResponse && permsResponse.data && permsResponse.data[0].permissions) {
+      // Validamos según el formato de tu backend (statusCode 200)
+      if (response && response.statusCode === 200 && response.data.length > 0) {
+        const loginData = response.data[0];
         
-        // OJO: Aquí el profe nos dio una lista general. 
-        // Por ahora, para que te funcione la práctica, cargaremos todos los del Admin 
-        // si el login fue exitoso, o filtraremos luego.
-        const allPerms = permsResponse.data[0].permissions;
+        // 1. Guardamos el Token
+        localStorage.setItem('token', loginData.token);
         
-        this.permsSvc.setPermissions(allPerms);
-        localStorage.setItem('user_perms', JSON.stringify(allPerms));
+        // 2. Guardamos datos básicos del usuario (opcional, para mostrar su nombre)
+        localStorage.setItem('user_info', JSON.stringify(loginData.user));
+
+        // 3. Gestionamos los permisos que YA vienen en la respuesta
+        const perms = loginData.permissions; // ["user:view", etc.]
+        this.permsSvc.setPermissions(perms);
+        localStorage.setItem('user_perms', JSON.stringify(perms));
         
         return true;
       }
+      return false;
+    } catch (error: any) {
+      console.error('Error en el login:', error);
+      return false;
     }
-    return false;
-  } catch (error) {
-    console.error('Error en el login:', error);
-    return false;
   }
-}
 
-  // Método para recuperar los permisos si refresca la página (F5)
   checkSession() {
     const savedPerms = localStorage.getItem('user_perms');
     if (savedPerms) {
@@ -57,8 +58,15 @@ export class AuthService {
     }
   }
 
+  isLoggedIn(): boolean {
+  return !!localStorage.getItem('token'); // Devuelve true si existe el token
+  }
+  
   logout() {
+    localStorage.removeItem('token');
     localStorage.removeItem('user_perms');
+    localStorage.removeItem('user_info');
     this.permsSvc.setPermissions([]);
+    this.router.navigate(['/']);
   }
 }

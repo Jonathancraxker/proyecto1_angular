@@ -6,10 +6,11 @@
                     </span>
                 </ng-template> -->
                 <ng-template #submenuheader let-item>
-                    <span class="font-bold">{{ item.label }}</span>
+                    <span class="font-bold" *ngIf="item.visible !== false">{{ item.label }}</span>
                 </ng-template>
                 <ng-template #item let-item>
                     <a pRipple 
+                        *ngIf="item.visible !== false"
                         [routerLink]="item.routerLink"
                         [routerLinkActiveOptions]="{exact: true}"
                         routerLinkActive="active-cafe" 

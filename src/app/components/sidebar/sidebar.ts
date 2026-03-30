@@ -9,6 +9,7 @@ import { Router, RouterLink, RouterLinkActive } from "@angular/router";
 import { HostListener, OnInit } from '@angular/core';
 
 import { PermissionsService } from '../../services/permissions.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -19,7 +20,7 @@ import { PermissionsService } from '../../services/permissions.service';
 })
 export class Sidebar implements OnInit{
 
-  constructor(private router: Router, private permsSvc: PermissionsService) {}
+  constructor(private router: Router, private permsSvc: PermissionsService, private authSvc: AuthService) {}
 
   items: MenuItem[] | undefined;
 
@@ -36,7 +37,7 @@ export class Sidebar implements OnInit{
                         icon: 'pi pi-home',
                         shortcut: 'ctrl+S',
                         routerLink: '/home',
-                        visible: this.permsSvc.hasPermission('group:view')
+                        visible: this.permsSvc.hasPermission('user:view')
                     }
                 ]
             },
@@ -51,20 +52,19 @@ export class Sidebar implements OnInit{
                         icon: 'pi pi-id-card',
                         shortcut: 'ctrl+P',
                         routerLink: '/user',
-                        visible: this.permsSvc.hasPermission('group:view')
+                        visible: this.permsSvc.hasPermission('user:edit:profile')
                     },
                 ]
             },
             {
-                separator: true
+                separator: true,
+                visible: this.permsSvc.hasPermission('group:manage')
             },
             {
-                label: 'Administrador',
+              label: 'Administrador', visible: this.permsSvc.hasPermission('group:manage'),
                 items: [
-                    { label: 'Grupos', icon: 'pi pi-users', shortcut: 'ctrl+G', routerLink: '/groups', visible: this.permsSvc.hasPermission('group:view')},
-                    { label: 'Usuarios', icon: 'pi pi-user', shortcut: 'ctrl+U', routerLink: '/admin-user', visible: this.permsSvc.hasPermission('group:view')},
-                    // { label: 'Gráficas', icon: 'pi pi-chart-line', badge: '2', routerLink:'/graficas', visible: this.permsSvc.hasPermission('group:view')},
-                    // { label: 'Reportes', icon: 'pi pi-file', badge: '2', routerLink:'/graficas', visible: this.permsSvc.hasPermission('group:view')}
+                    { label: 'Grupos', icon: 'pi pi-users', shortcut: 'ctrl+G', routerLink: '/groups', visible: this.permsSvc.hasPermission('group:manage')},
+                    { label: 'Usuarios', icon: 'pi pi-user', shortcut: 'ctrl+U', routerLink: '/admin-user', visible: this.permsSvc.hasPermission('group:manage')},
                 ]
                 },
                 {
@@ -75,7 +75,7 @@ export class Sidebar implements OnInit{
                     label: 'Versión',
                     items: [
                         { 
-                            label: 'v1.0.3', 
+                            label: 'v1.0.4', 
                             icon: 'pi pi-info-circle',
                             disabled: true
                         }
@@ -87,8 +87,10 @@ export class Sidebar implements OnInit{
                     label: 'Logout',
                     icon: 'pi pi-sign-out',
                     shortcut: 'ctrl+Q',
-                    linkClass: 'btn-logout',
+                    linkClass: 'btn-logout', //quiero que el logout use el service para limpiar el localStorage y redirigir al login, no solo que navegue a la ruta
                     command: () => this.logout()
+                    //quiero que el logout use el service para limpiar el localStorage y redirigir al login, no solo que navegue a la ruta
+                    
                     }
                 ]
             }
@@ -146,7 +148,7 @@ export class Sidebar implements OnInit{
   }
 
   logout() {
-    this.router.navigate(['/']); 
+    this.authSvc.logout();
   }
 
 }

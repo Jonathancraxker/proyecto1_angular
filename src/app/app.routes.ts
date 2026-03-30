@@ -1,15 +1,18 @@
 import { Routes } from '@angular/router';
-
+import { hasPermissionGuard } from './guards/auth.guard';
+import { sessionGuard } from './guards/session.guard';
+import { publicGuard } from './guards/public.guard';
 
 export const routes: Routes = [
     {
         path: '',
         redirectTo: 'login',
-        pathMatch: 'full'
+        pathMatch: 'full',
     },
     {
         path: '',
-        loadComponent: () => import('./pages/auth/login/login').then(m => m.Login)
+        loadComponent: () => import('./pages/auth/login/login').then(m => m.Login),
+        canActivate: [publicGuard]
     },
     {
                 path: 'landing',
@@ -17,27 +20,33 @@ export const routes: Routes = [
     },
     {
         path: 'register',
-        loadComponent: () => import('./pages/auth/register/register').then(m => m.Register)
+        loadComponent: () => import('./pages/auth/register/register').then(m => m.Register),
+        canActivate: [publicGuard]
     },
     {
         path: '',
         loadComponent: () => import('./layout/main-layout/main-layout').then(m => m.MainLayout),
+        canActivate: [sessionGuard],
         children: [
             {
                 path: 'home',
-                loadComponent: () => import('./pages/home/home').then(m => m.Home)
+                loadComponent: () => import('./pages/home/home').then(m => m.Home),
+                canActivate: [sessionGuard]
             },
             {
                 path: 'user',
-                loadComponent: () => import('./pages/user/user').then(m => m.User)
+                loadComponent: () => import('./pages/user/user').then(m => m.User),
+                canActivate: [hasPermissionGuard('user:edit:profile')]
             },
             {
                 path: 'groups',
-                loadComponent: () => import('./pages/groups/groups').then(m => m.Groups)
+                loadComponent: () => import('./pages/groups/groups').then(m => m.Groups),
+                canActivate: [hasPermissionGuard('group:manage')]
             },
             {
             path: 'admin-user',
-            loadComponent: () => import('./pages/admin-user/admin-user').then(m => m.AdminUser)
+            loadComponent: () => import('./pages/admin-user/admin-user').then(m => m.AdminUser),
+            canActivate: [hasPermissionGuard('group:manage')]
             },
             {
             path: 'dashboard/:id',
@@ -57,11 +66,13 @@ export const routes: Routes = [
                 },
                 {
                   path: 'users', // Vista de tabla
-                loadComponent: () => import('./pages/dashboard/users/users').then(m => m.Users)
+                  loadComponent: () => import('./pages/dashboard/users/users').then(m => m.Users),
+                  canActivate: [hasPermissionGuard('group:manage')]
                 },
-                { path: '', redirectTo: 'resumen', pathMatch: 'full' }
+                { path: '', redirectTo: 'resumen', pathMatch: 'full' },
             ]
             }
         ]
     },
+    { path: '**', redirectTo: 'home' }
 ];

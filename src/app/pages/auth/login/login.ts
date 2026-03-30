@@ -36,12 +36,12 @@ export class Login {
 
   fb = inject(FormBuilder);
   messageService = inject(MessageService);
-    exampleForm: FormGroup;
+    loginForm: FormGroup;
     formSubmitted: boolean = false;
     isLoading: boolean = false;
 
     constructor() {
-        this.exampleForm = this.fb.group({
+        this.loginForm = this.fb.group({
           email: ['', [Validators.required, Validators.email]],
           password: ['', [Validators.required, Validators.minLength(10),
             Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d@#$!%*?&]{10,}$/)
@@ -52,14 +52,14 @@ export class Login {
     async onSubmit() {
     this.formSubmitted = true;
     
-    if (this.exampleForm.valid) {
+    if (this.loginForm.valid) {
       this.isLoading = true;
       
       try {
         // Obtenemos los datos del formulario
-        const credentials = this.exampleForm.value;
+        const credentials = this.loginForm.value;
         
-        // Llamamos al servicio (esto va a Koyeb)
+        // Llamamos al servicio
         const success = await this.authService.login(credentials);
 
         if (success) {
@@ -67,7 +67,7 @@ export class Login {
             severity: 'success', 
             summary: '¡Bienvenido!', 
             detail: 'Sesión iniciada correctamente', 
-            life: 2000 
+            life: 5000
           });
           
           // Navegamos al home
@@ -78,7 +78,7 @@ export class Login {
           this.messageService.add({ 
             severity: 'error', 
             summary: 'Error', 
-            detail: 'Credenciales inválidas o sin permisos', 
+            detail: 'Credenciales inválidas', 
             life: 3000 
           });
         }
@@ -96,7 +96,7 @@ export class Login {
   }
 
     isInvalid(controlName: string) {
-        const control = this.exampleForm.get(controlName);
+        const control = this.loginForm.get(controlName);
         return control?.invalid && (control.touched || this.formSubmitted);
     }
 }
