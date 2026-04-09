@@ -16,7 +16,7 @@
 
     <p-toolbar class="mb-4">
         <ng-template #start>
-            <p-button *ifHasPermission="'group:add'" label="Añadir por Email" icon="pi pi-user-plus" (onClick)="openNew()" />
+            <p-button *ifHasPermission="'group:manage'" label="Añadir por Email" icon="pi pi-user-plus" (onClick)="openNew()" />
         </ng-template>
     </p-toolbar>
 

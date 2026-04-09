@@ -1,4 +1,3 @@
-// src/app/core/guards/public.guard.ts
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
@@ -8,8 +7,7 @@ export const publicGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   if (authService.isLoggedIn()) {
-    // Si ya está logueado, no tiene qué hacer en el Login -> Al Home
-    router.navigate(['/home']);
+    router.navigate([router.url]); //se redirije a la misma ruta en la que se encuentra, excepto login/register
     return false; 
   }
 

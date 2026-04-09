@@ -25,7 +25,7 @@ export class Resumen implements OnInit {
     pendiente: 10,
     enProgreso: 5,
     hecho: 8,
-    bloqueado: 2
+    cerrado: 2
   };
 
   // 2. Mini-lista de tickets recientes 

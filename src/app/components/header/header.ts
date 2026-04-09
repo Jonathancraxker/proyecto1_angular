@@ -33,7 +33,7 @@ export class Header implements OnInit {
             {
                 label: 'Perfil',
                 icon: 'pi pi-user',
-                routerLink: '/user'
+                routerLink: '/profile'
             },
             {
                 label: 'Grupos',

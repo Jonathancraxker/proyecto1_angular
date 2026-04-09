@@ -10,52 +10,85 @@
             <p-button *ifHasPermission="'user:add'" label="Add User" icon="pi pi-user-plus" (onClick)="openNew()" />
         </div>
 
-        <p-table #dt [value]="users" [rows]="10" [paginator]="true" [globalFilterFields]="['nombre', 'email']" 
-                 styleClass="p-datatable-sm p-datatable-gridlines">
-            <ng-template #header>
-                <tr>
-                    <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre" /></th>
-                    <th pSortableColumn="email">Email <p-sortIcon field="email" /></th>
-                    <th>Permisos Asignados (Roles)</th>
-                    <th>Acciones</th>
-                </tr>
-            </ng-template>
+        <!-- Loading Spinner -->
+        <div class="card p-4 shadow-2 border-round surface-card relative">
+            @if (loading) {
+                <div class="absolute top-0 left-0 w-full h-full flex justify-content-center align-items-center border-round" style="z-index: 100;">
+                    <p-progressSpinner ariaLabel="loading" strokeWidth="4" fill="transparent" />
+                </div>
+            }            
 
-            <ng-template #body let-u>
-                <tr class="text-gray-300">
-                    <td class="font-bold text-white">{{ u.nombre }}</td>
-                    <td>{{ u.email }}</td>
-                    <td>
-                        <div class="flex flex-wrap gap-1">
-                            @for (permiso of u.permisos; track permiso) {
-                                <p-tag [value]="permiso" severity="secondary" />
-                            } @empty {
-                                <span class="text-xs italic text-gray-500">Sin permisos asignados</span>
-                            }
-                        </div>
-                    </td>
-                    <td>
-                        <p-button *ifHasPermission="'user:edit'" icon="pi pi-pencil" [rounded]="true" [outlined]="true" class="mr-2" (onClick)="editUser(u)" />
-                        <p-button *ifHasPermission="'user:delete'" icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (onClick)="deleteUser(u)" />
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
+            <p-table #dt [value]="users" [rows]="10" [paginator]="true" [globalFilterFields]="['nombre_completo', 'email']" 
+                    styleClass="p-datatable-sm p-datatable-gridlines">
+                <ng-template #header>
+                    <tr>
+                        <th pSortableColumn="nombre_completo">Nombre <p-sortIcon field="nombre_completo" /></th>
+                        <th pSortableColumn="username">Username <p-sortIcon field="username" /></th>
+                        <th pSortableColumn="email">Email <p-sortIcon field="email" /></th>
+                        <th class="text-center">Permisos Asignados</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </ng-template>
+
+                <ng-template #body let-u>
+                    <tr class="text-gray-300">
+                        <td class="font-bold text-white">{{ u.nombre_completo }}</td>
+                        <td>{{ u.username }}</td>
+                        <td>{{ u.email }}</td>
+                        <td>
+                            <div style="max-width: 360px;" class="flex flex-wrap gap-1">
+                                @for (permisoId of u.permisos; track permisoId) {
+                                    <p-tag [value]="getPermisoNombre(permisoId)" severity="secondary" />
+                                } @empty {
+                                    <span class="text-xs italic text-gray-500">Sin permisos asignados</span>
+                                }
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <p-button *ifHasPermission="'user:edit'" icon="pi pi-pencil" [rounded]="true" [outlined]="true" class="mr-2" (onClick)="editUser(u)" />
+                            <p-button *ifHasPermission="'user:delete'" icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (onClick)="deleteUser(u)" />
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
     </div>
 </div>
 
 <p-dialog [(visible)]="userDialog" [header]="user.id ? 'Editar Usuario' : 'Nuevo Usuario'" [modal]="true" [style]="{ width: '500px' }" styleClass="p-fluid">
     <ng-template #content>
-        <div class="field mb-3">
-            <label class="block font-bold mb-2 text-white-alpha-70">Nombre Completo</label>
-            <input type="text" pInputText [(ngModel)]="user.nombre" required autofocus />
+        <div class="p-fluid">
+            <div class="formgrid grid">
+                <div class="field col-12 md:col-6">
+                    <label class="block font-bold mb-2 text-white-alpha-70">Nombre Completo</label>
+                    <input type="text" pInputText [(ngModel)]="user.nombre_completo" required autofocus />
+                </div>
+                <div class="field col-12 md:col-6">
+                    <label class="block font-bold mb-2 text-white-alpha-70">Username</label>
+                    <input type="text" pInputText [(ngModel)]="user.username" required />
+                </div>
+            </div>
+
+            <div class="formgrid grid">
+                @if (!user.id) {
+                    <div class="field col-12 md:col-6">
+                        <label class="block font-bold mb-2 text-white-alpha-70">Contraseña</label>
+                        <input type="password" pInputText [(ngModel)]="user.password" required />
+                    </div>
+                }
+                <div [class]="!user.id ? 'field col-12 md:col-6' : 'field col-12 md:col-12'">
+                    <label class="block font-bold mb-2 text-white-alpha-70">Email</label>
+                    <input type="email" pInputText [(ngModel)]="user.email" required />
+                    <!-- Quiero un if que valide si el email es valido o no -->
+                    @if (user.email && !isValidEmail(user.email)) {
+                        <p-message severity="error" size="small" variant="simple" class="mt-2 ml-1">
+                            Por favor ingresa un email válido.
+                        </p-message>
+                    }
+                </div>
+            </div>
         </div>
-        <div class="field mb-3">
-            <label class="block font-bold mb-2 text-white-alpha-70">Email</label>
-            <input type="email" pInputText [(ngModel)]="user.email" required />
-        </div>
-        
-        <div class="field mt-4">
+        <div class="field mt-2">
             <label class="block font-bold mb-2 text-primary">Gestionar Permisos</label>
             <p-multiselect 
                 [options]="permisosDisponibles" 

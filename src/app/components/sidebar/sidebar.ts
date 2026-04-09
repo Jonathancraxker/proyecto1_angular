@@ -51,7 +51,7 @@ export class Sidebar implements OnInit{
                         label: 'Perfil',
                         icon: 'pi pi-id-card',
                         shortcut: 'ctrl+P',
-                        routerLink: '/user',
+                        routerLink: '/profile',
                         visible: this.permsSvc.hasPermission('user:edit:profile')
                     },
                 ]
@@ -75,7 +75,7 @@ export class Sidebar implements OnInit{
                     label: 'Versión',
                     items: [
                         { 
-                            label: 'v1.0.4', 
+                            label: 'v1.0.5', 
                             icon: 'pi pi-info-circle',
                             disabled: true
                         }
@@ -136,7 +136,7 @@ export class Sidebar implements OnInit{
   }
   
   perfil() {
-    this.router.navigate(['/user'])
+    this.router.navigate(['/profile'])
   }
 
   groups() {

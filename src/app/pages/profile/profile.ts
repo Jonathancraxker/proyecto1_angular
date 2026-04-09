@@ -21,7 +21,7 @@ import { TagModule } from 'primeng/tag';     // <--- Importante añadir
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-user',
+  selector: 'app-profile',
   imports: [
     CommonModule, CardModule, ButtonModule, FormsModule, FloatLabelModule, 
     InputGroupModule, InputTextModule, InputGroupAddonModule, MessageModule, 
@@ -31,10 +31,10 @@ import { CommonModule } from '@angular/common';
   ],
   standalone: true,
   providers: [MessageService, ConfirmationService],
-  templateUrl: './user.html',
-  styleUrl: './user.css',
+  templateUrl: './profile.html',
+  styleUrl: './profile.css',
 })
-export class User implements OnInit {
+export class Profile implements OnInit {
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private messageService = inject(MessageService);

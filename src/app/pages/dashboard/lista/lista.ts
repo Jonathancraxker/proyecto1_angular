@@ -55,7 +55,7 @@ export class Lista implements OnInit {
         { label: 'Hecho', value: 'Hecho' },
         { label: 'En proceso', value: 'En proceso' },
         { label: 'Pendiente', value: 'Pendiente' },
-        { label: 'Bloqueado', value: 'Bloqueado' }
+        { label: 'Cerrado', value: 'Cerrado' }
     ];
 
     ngOnInit() {
@@ -63,7 +63,7 @@ export class Lista implements OnInit {
             { id: 'TK-1', titulo: 'Tarea 1', responsable: 'Jonathan', estado: 'Pendiente', prioridad: 'Alta', fechaLimite: '2026-03-15', descripcion: 'Revisar logs' },
             { id: 'TK-2', titulo: 'Tarea 2', responsable: 'Admin', estado: 'Hecho', prioridad: 'Baja', fechaLimite: '2026-03-10', descripcion: 'Cerrar sesión' },
             { id: 'TK-3', titulo: 'Tarea 3', responsable: 'User', estado: 'En proceso', prioridad: 'Media', fechaLimite: '2026-03-20', descripcion: 'Actualizar documentación' },
-            { id: 'TK-4', titulo: 'Tarea 4', responsable: 'Jonathan', estado: 'Bloqueado', prioridad: 'Alta', fechaLimite: '2026-03-25', descripcion: 'Integrar API externa' }
+            { id: 'TK-4', titulo: 'Tarea 4', responsable: 'Jonathan', estado: 'Cerrado', prioridad: 'Alta', fechaLimite: '2026-03-25', descripcion: 'Integrar API externa' }
         ];
     }
 
@@ -97,7 +97,7 @@ export class Lista implements OnInit {
             case 'Hecho': return 'success';
             case 'En proceso': return 'info';
             case 'Pendiente': return 'warn';
-            case 'Bloqueado': return 'danger';
+            case 'Cerrado': return 'danger';
             default: return 'secondary';
         }
     }

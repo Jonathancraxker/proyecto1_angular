@@ -60,16 +60,8 @@ export class Login {
         const credentials = this.loginForm.value;
         
         // Llamamos al servicio
-        const success = await this.authService.login(credentials);
-
+        const success = await this.authService.login(credentials)
         if (success) {
-          this.messageService.add({ 
-            severity: 'success', 
-            summary: '¡Bienvenido!', 
-            detail: 'Sesión iniciada correctamente', 
-            life: 5000
-          });
-          
           // Navegamos al home
           setTimeout(() => {
             this.router.navigate(['/home']);

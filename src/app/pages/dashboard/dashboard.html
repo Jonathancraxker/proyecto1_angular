@@ -3,7 +3,7 @@
         <div>
             <h2 class="text-3xl font-bold m-0 text-white">Dashboard del Grupo: {{groupId}}</h2>
         </div>
-        <p-button *ifHasPermission="'group:add'" label="Crear Ticket" icon="pi pi-plus" (onClick)="crearTicket()"></p-button>
+        <p-button *ifHasPermission="'group:manage'" label="Crear Ticket" icon="pi pi-plus" (onClick)="crearTicket()"></p-button>
     </div>
 
     <p-tabs [value]="0">
