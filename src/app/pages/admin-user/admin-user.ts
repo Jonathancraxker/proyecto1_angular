@@ -9,7 +9,7 @@ import { DialogModule } from 'primeng/dialog';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { MessageService, ConfirmationService } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
 import { MessageModule } from 'primeng/message'; // Para mostrar mensajes de validación
@@ -24,16 +24,14 @@ import { UsersService } from '../../services/admin-user/users.service';
     CommonModule, FormsModule, TableModule, TagModule, ButtonModule, 
     InputTextModule, DialogModule, MultiSelectModule, ToastModule, ConfirmDialogModule, HasPermissionDirective, MessageModule, ProgressSpinnerModule
   ],
-  providers: [MessageService, ConfirmationService],
+  providers: [ConfirmationService],
   templateUrl: './admin-user.html',
   styleUrl: './admin-user.css'
 })
 export class AdminUser implements OnInit {
-    loading: boolean = false;
     @ViewChild('dt') dt: any;
 
     private usersSvc = inject(UsersService);
-    private messageService = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
     private cdr = inject(ChangeDetectorRef);
 
@@ -41,6 +39,7 @@ export class AdminUser implements OnInit {
     user: any = {};
     userDialog: boolean = false;
     submitted: boolean = false;
+    loading: boolean = false;
 
     // Lista maestra de permisos para el SuperAdmin (Punto 10)
     permisosDisponibles = [
@@ -55,7 +54,6 @@ export class AdminUser implements OnInit {
         { name: 'group:view', code: 7 },
         { name: 'group:add', code: 8 },
         { name: 'group:edit', code: 9 },
-        //ayudame a actualizar los siguientes numeros en secuencia
         { name: 'group:delete', code: 10 },
         { name: 'group:manage', code: 11 },
         // TICKETS
@@ -66,7 +64,9 @@ export class AdminUser implements OnInit {
         { name: 'tickets:edit:state', code: 16 },
         { name: 'tickets:edit:comment', code: 17 },
         { name: 'tickets:manage', code: 18 },
-        { name: 'tickets:move', code: 19 }
+        { name: 'tickets:move', code: 19 },
+        //ADMINISTRADOR
+        { name: 'admin:manage', code: 20 }
     ];
 
     ngOnInit() {
@@ -115,7 +115,6 @@ export class AdminUser implements OnInit {
             // --- ACTUALIZAR ---
             this.usersSvc.updateUser(this.user.id, payload).subscribe({
                 next: () => {
-                    this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Usuario actualizado' });
                     this.finishSave();
                 },
                 error: () => this.loading = false
@@ -123,7 +122,6 @@ export class AdminUser implements OnInit {
         } else {
             this.usersSvc.createUser(payload).subscribe({
                 next: () => {
-                    this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Usuario creado' });
                     this.finishSave();
                 },
                 error: () => this.loading = false
@@ -152,11 +150,15 @@ finishSave() {
 
     deleteUser(user: any) {
         this.confirmationService.confirm({
+            header: 'Confirmar eliminación',
             message: `¿Estás seguro de eliminar a ${user.nombre_completo}?`,
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: 'Eliminar',
+            rejectLabel: 'Cancelar',
+            acceptButtonStyleClass: 'p-button-danger',
             accept: () => {
                 this.usersSvc.deleteUser(user.id).subscribe({
                     next: () => {
-                        this.messageService.add({ severity: 'success', summary: 'Eliminado', detail: 'Usuario borrado' });
                         this.loadUsers();
                     }
                 });

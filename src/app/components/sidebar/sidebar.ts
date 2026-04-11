@@ -58,13 +58,13 @@ export class Sidebar implements OnInit{
             },
             {
                 separator: true,
-                visible: this.permsSvc.hasPermission('group:manage')
+                visible: this.permsSvc.hasPermission('admin:manage')
             },
             {
-              label: 'Administrador', visible: this.permsSvc.hasPermission('group:manage'),
+              label: 'Administrador', visible: this.permsSvc.hasPermission('admin:manage'),
                 items: [
-                    { label: 'Grupos', icon: 'pi pi-users', shortcut: 'ctrl+G', routerLink: '/groups', visible: this.permsSvc.hasPermission('group:manage')},
-                    { label: 'Usuarios', icon: 'pi pi-user', shortcut: 'ctrl+U', routerLink: '/admin-user', visible: this.permsSvc.hasPermission('group:manage')},
+                    { label: 'Grupos', icon: 'pi pi-users', shortcut: 'ctrl+G', routerLink: '/groups', visible: this.permsSvc.hasPermission('admin:manage')},
+                    { label: 'Usuarios', icon: 'pi pi-user', shortcut: 'ctrl+U', routerLink: '/admin-user', visible: this.permsSvc.hasPermission('admin:manage')},
                 ]
                 },
                 {
@@ -75,7 +75,7 @@ export class Sidebar implements OnInit{
                     label: 'Versión',
                     items: [
                         { 
-                            label: 'v1.0.5', 
+                            label: 'v1.0.6', 
                             icon: 'pi pi-info-circle',
                             disabled: true
                         }
@@ -87,9 +87,8 @@ export class Sidebar implements OnInit{
                     label: 'Logout',
                     icon: 'pi pi-sign-out',
                     shortcut: 'ctrl+Q',
-                    linkClass: 'btn-logout', //quiero que el logout use el service para limpiar el localStorage y redirigir al login, no solo que navegue a la ruta
+                    linkClass: 'btn-logout',
                     command: () => this.logout()
-                    //quiero que el logout use el service para limpiar el localStorage y redirigir al login, no solo que navegue a la ruta
                     
                     }
                 ]

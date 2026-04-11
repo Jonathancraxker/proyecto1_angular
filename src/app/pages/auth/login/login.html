@@ -1,8 +1,11 @@
 <div class="flex align-items-center justify-content-center min-h-screen">
-    <p-toast /> <p-card [style]="{ width: '25rem' }">
+    <p-card [style]="{ width: '25rem' }">
         <ng-template #title> Iniciar sesión </ng-template>
         <ng-template #subtitle> Ingresa tus datos: </ng-template>
             <form id="loginForm" [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-column gap-3 mt-3">
+                @if (errorMessage) {
+                    <p-message severity="error" text="{{ errorMessage }}" />
+                }
                 <div class="flex flex-column gap-1">
                     <p-inputgroup>
                         <p-inputgroup-addon>
@@ -66,8 +69,7 @@
 
         <ng-template #footer>
             <div class="flex justify-content-end gap-3">
-                <button form="loginForm" pButton severity="success" type="submit" label="Iniciar sesión" icon="pi pi-check"
-                [disabled]="loginForm.invalid || loginForm.get('email')?.value === '' || loginForm.get('password')?.value === ''"></button>
+                <button form="loginForm" pButton severity="success" type="submit" [label]="isLoading ? 'Verificando...' : 'Iniciar sesión'" [icon]="isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-check'" [disabled]="loginForm.invalid || isLoading"></button>
             </div>
         </ng-template>
     </p-card>

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -9,8 +9,6 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { Router, RouterLink } from "@angular/router"; 
 import { MessageModule } from 'primeng/message';
 import { InputMaskModule } from 'primeng/inputmask';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { PasswordModule } from 'primeng/password';
 import { DividerModule } from 'primeng/divider';
@@ -24,21 +22,21 @@ import { AuthService } from '../../../services/auth.service';
     ButtonModule, 
     FormsModule, 
     FloatLabelModule, 
-    InputGroupModule, InputTextModule, InputGroupAddonModule, MessageModule, InputMaskModule, ToastModule, InputNumberModule, PasswordModule, ReactiveFormsModule, BreadcrumbModule, RouterLink, DividerModule],
+    InputGroupModule, InputTextModule, InputGroupAddonModule, MessageModule, InputMaskModule, InputNumberModule, PasswordModule, ReactiveFormsModule, BreadcrumbModule, RouterLink, DividerModule],
   standalone: true,
-  providers: [MessageService],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
 export class Login {
   private router = inject(Router);
   private authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
 
   fb = inject(FormBuilder);
-  messageService = inject(MessageService);
     loginForm: FormGroup;
     formSubmitted: boolean = false;
     isLoading: boolean = false;
+    errorMessage: string | null = null;
 
     constructor() {
         this.loginForm = this.fb.group({
@@ -51,38 +49,31 @@ export class Login {
 
     async onSubmit() {
     this.formSubmitted = true;
-    
+    this.errorMessage = null;
+
     if (this.loginForm.valid) {
       this.isLoading = true;
       
       try {
         // Obtenemos los datos del formulario
         const credentials = this.loginForm.value;
-        
-        // Llamamos al servicio
         const success = await this.authService.login(credentials)
         if (success) {
-          // Navegamos al home
-          setTimeout(() => {
             this.router.navigate(['/home']);
-          }, 1000);
         } else {
-          this.messageService.add({ 
-            severity: 'error', 
-            summary: 'Error', 
-            detail: 'Credenciales inválidas', 
-            life: 3000 
-          });
+          this.errorMessage = 'Credenciales inválidas';
+          this.isLoading = false;
+          this.cdr.markForCheck(); // forzar actualizacion de la vista
         }
       } catch (error) {
-        this.messageService.add({ 
-          severity: 'error', 
-          summary: 'Error de conexión', 
-          detail: 'No se pudo conectar con el servidor', 
-          life: 3000 
-        });
-      } finally {
+        this.errorMessage = 'Error de conexión';
         this.isLoading = false;
+        this.cdr.markForCheck();
+      } finally {
+        if (!this.errorMessage) {
+          this.isLoading = false;
+          this.cdr.markForCheck(); // Forzar la actualización de la vista
+        }
       }
     }
   }

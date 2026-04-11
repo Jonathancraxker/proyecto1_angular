@@ -1,203 +1,217 @@
-import { Component, OnInit, inject, ViewChild } from '@angular/core';
-import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';  
+import { Component, OnInit, inject, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common'
 
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { DialogModule } from 'primeng/dialog';
-import { SelectModule } from 'primeng/select';
-import { FileUploadModule } from 'primeng/fileupload';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { RadioButtonModule } from 'primeng/radiobutton';
-import { RatingModule } from 'primeng/rating';
+// PrimeNG Modules
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { ToastModule } from 'primeng/toast';
-import { ToolbarModule } from 'primeng/toolbar';
+import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
-import { ProductService } from '../../services/productservice';
-import { Product } from '../../domain/product';
-import { MessageService, ConfirmationService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { TagModule } from 'primeng/tag';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TooltipModule } from 'primeng/tooltip';
+import { BadgeModule } from 'primeng/badge';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { SelectModule } from 'primeng/select'; // Agrega este al componente e imports
+import { MultiSelectModule } from 'primeng/multiselect'; // Para los permisos
+
+// Services & Directives
+import { GroupsService } from '../../services/admin-groups/groups.service';
+import { UsersService } from '../../services/admin-user/users.service';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
-interface Column {
-    field: string;
-    header: string;
-    customExportHeader?: string;
-}
-
-interface ExportColumn {
-    title: string;
-    dataKey: string;
-}
-
 @Component({
-  selector: 'app-groups',
-  standalone: true,
-  imports: [
-    HasPermissionDirective,
-    CardModule, ButtonModule, FormsModule, TableModule, InputTextModule,
-    CommonModule, DialogModule, SelectModule, FileUploadModule,
-    IconFieldModule, InputIconModule, InputNumberModule, RadioButtonModule, 
-    RatingModule, TagModule, ToastModule, ToolbarModule, ConfirmDialogModule,
-    TextareaModule
-  ],
-  providers: [ProductService, MessageService, ConfirmationService],
-  templateUrl: './groups.html',
-  styleUrl: './groups.css',
+selector: 'app-groups',
+standalone: true,
+imports: [
+    HasPermissionDirective, CommonModule, FormsModule,
+    CardModule, ButtonModule, TableModule, InputTextModule,
+    DialogModule, ConfirmDialogModule, TagModule, IconFieldModule, 
+    InputIconModule, TextareaModule, TooltipModule, BadgeModule, ToolbarModule, ProgressSpinnerModule,
+    SelectModule, MultiSelectModule
+],
+providers: [ConfirmationService, MessageService],
+templateUrl: './groups.html',
+styleUrl: './groups.css',
 })
 export class Groups implements OnInit {
     @ViewChild('dt') dt: any;
     
-    private productService = inject(ProductService);
-    private messageService = inject(MessageService);
+    private groupsSvc = inject(GroupsService);
+    private usersSvc = inject(UsersService);
     private confirmationService = inject(ConfirmationService);
+    private messageService = inject(MessageService);
+    private cdr = inject(ChangeDetectorRef);
 
-    productDialog: boolean = false;
-    products!: Product[];
-    product!: Product;
-    selectedProducts!: Product[] | null;
+    groups: any[] = [];
+    group: any = {};
+    groupDialog: boolean = false;
     submitted: boolean = false;
-    statuses!: any[];
-    cols!: Column[];
+    loading: boolean = false;
+    membersDialog: boolean = false;
+    allUsers: any[] = []; // Usuarios que traes de Node
+    selectedUser: any = null; // Usuario seleccionado para agregar
+    permisosDisponibles: any[] = []; // Lista de permisos disponibles [1, 4, 15...]
+    selectedPerms: any[] = []; // Permisos marcados en los checkboxes
 
     ngOnInit() {
-        this.productService.getProducts().then((data: Product[]) => {
-            this.products = data;
+        this.loadGroups();
+        this.loadAllUsers();
+    }
+
+    loadGroups() {
+        this.loading = true;
+        this.groupsSvc.getGroups().subscribe({
+            next: (res: any) => {
+                this.groups = res.data;
+                this.loading = false;
+                this.cdr.markForCheck();
+            },
+            error: (err) => console.error('Error cargando grupos', err)
         });
+    }
 
-        this.statuses = [
-            { label: 'Principiante', value: 'Principiante' },
-            { label: 'Intermedio', value: 'Intermedio' },
-            { label: 'Avanzado', value: 'Avanzado' }
-        ];
-
-        this.cols = [
-            { field: 'nivel', header: 'Nivel' },
-            { field: 'autor', header: 'Autor' },
-            { field: 'nombre', header: 'Nombre' },
-            { field: 'integrantes', header: 'Integrantes' },
-            { field: 'tickets', header: 'Tickets' },
-            { field: 'descripcion', header: 'Descripción' }
-        ];
+    loadAllUsers() {
+        this.usersSvc.getUsers().subscribe({
+            next: (res: any) => {
+                this.allUsers = res.data;
+            },
+            error: (err) => console.error('Error cargando usuarios', err)
+        });
     }
 
     openNew() {
-        this.product = {};
+        this.group = {};
         this.submitted = false;
-        this.productDialog = true;
+        this.groupDialog = true;
     }
 
-    editProduct(product: Product) {
-        this.product = { ...product };
-        this.productDialog = true;
+    editGroup(group: any) {
+        this.group = { ...group };
+        this.groupDialog = true;
     }
 
-    deleteSelectedProducts() {
+    onUserChange(event: any) {
+        const userId = event.value.id;
+        this.loading = true; // El spinner que agregaste viene de perlas aquí
+        
+        this.groupsSvc.getMemberPermissions(this.group.id, userId).subscribe({
+            next: (res: any) => {
+                // Como res.data es [1, 2, 3...], se vincula directo al ngModel
+                this.selectedPerms = res.data;
+                this.loading = false;
+                this.cdr.detectChanges();
+            },
+            error: () => {
+                this.selectedPerms = [];
+                this.loading = false;
+            }
+        });
+    }
+
+    manageMembers(group: any) {
+        this.group = { ...group };
+        this.selectedUser = null;
+        this.selectedPerms = [];
+        this.membersDialog = true;
+        
+        // 1. Cargar usuarios si no los tienes
+        // 2. Cargar la lista de permisos disponibles
+        this.permisosDisponibles = [
+        // USERS
+        { name: 'user:view', id: 1 },
+        { name: 'user:add', id: 2 },
+        { name: 'user:edit', id: 3 },
+        { name: 'user:edit:profile', id: 4 },
+        { name: 'user:delete', id: 5 },
+        { name: 'user:manage', id: 6 },
+        // GROUPS
+        { name: 'group:view', id: 7 },
+        { name: 'group:add', id: 8 },
+        { name: 'group:edit', id: 9 },
+        { name: 'group:delete', id: 10 },
+        { name: 'group:manage', id: 11 },
+        // TICKETS
+        { name: 'tickets:view', id: 12 },
+        { name: 'tickets:add', id: 13 },
+        { name: 'tickets:edit', id: 14 },
+        { name: 'tickets:delete', id: 15 },
+        { name: 'tickets:edit:state', id: 16 },
+        { name: 'tickets:edit:comment', id: 17 },
+        { name: 'tickets:manage', id: 18 },
+        { name: 'tickets:move', id: 19 },
+        ];
+    }
+
+    saveMemberAssignment() {
+    if (!this.selectedUser) return;
+
+    this.groupsSvc.addMember(this.group.id, this.selectedUser.id).subscribe({
+        next: () => {
+            // selectedPerms ya es un array de IDs gracias al optionValue="id"
+            this.groupsSvc.updateMemberPermissions(this.group.id, this.selectedUser.id, this.selectedPerms).subscribe({
+                next: () => {
+                    this.membersDialog = false;
+                    this.loadGroups();
+                }
+            });
+        }
+    });
+}
+    
+    deleteGroup(group: any) {
         this.confirmationService.confirm({
-            message: '¿Estás seguro de que quieres eliminar los grupos seleccionados?',
-            header: 'Confirmar',
+            message: `¿Estás seguro de eliminar el grupo "${group.nombre}"?`,
+            header: 'Confirmar Eliminación',
             icon: 'pi pi-exclamation-triangle',
-            rejectButtonProps: { label: 'No', severity: 'secondary', variant: 'text' },
-            acceptButtonProps: { severity: 'danger', label: 'Sí' },
+            acceptLabel: 'Sí, eliminar',
+            rejectLabel: 'No',
+            acceptButtonStyleClass: 'p-button-danger',
             accept: () => {
-                this.products = this.products.filter((val) => !this.selectedProducts?.includes(val));
-                this.selectedProducts = null;
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Exitoso',
-                    detail: 'Grupos eliminados',
-                    life: 3000
+                this.groupsSvc.deleteGroup(group.id).subscribe({
+                    next: () => {
+                        this.loadGroups();
+                    }
                 });
             }
         });
     }
 
     hideDialog() {
-        this.productDialog = false;
+        this.groupDialog = false;
         this.submitted = false;
     }
 
-    deleteProduct(product: Product) {
-        this.confirmationService.confirm({
-            message: '¿Estás seguro de que quieres eliminar a ' + product.nombre + '?',
-            header: 'Confirmar',
-            icon: 'pi pi-exclamation-triangle',
-            rejectButtonProps: { label: 'No', severity: 'secondary', variant: 'text' },
-            acceptButtonProps: { severity: 'danger', label: 'Sí' },
-            accept: () => {
-                this.products = this.products.filter((val) => val.id !== product.id);
-                this.product = {};
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Exitoso',
-                    detail: 'Grupo eliminado',
-                    life: 3000
-                });
-            }
-        });
-    }
-
-    findIndexById(id: string): number {
-        let index = -1;
-        for (let i = 0; i < this.products.length; i++) {
-            if (this.products[i].id === id) {
-                index = i;
-                break;
-            }
-        }
-        return index;
-    }
-
-    createId(): string {
-        let id = '';
-        var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        for (var i = 0; i < 5; i++) {
-            id += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return id;
-    }
-
-    getSeverity(nivel: string) {
-        switch (nivel) {
-            case 'Hecho': return 'success';
-            case 'En progreso': return 'info';
-            case 'Pendiente': return 'warn';
-            case 'Bloqueado': return 'danger';
-            default: return 'secondary';
-        }
-    }
-
-    saveProduct() {
+    saveGroup() {
         this.submitted = true;
 
-        if (this.product.nombre?.trim()) {
-            if (this.product.id) {
-                this.products[this.findIndexById(this.product.id)] = this.product;
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Exitoso',
-                    detail: 'Grupo actualizado',
-                    life: 3000
+        if (this.group.nombre?.trim()) {
+            this.loading = true;
+            if (this.group.id) {
+                // UPDATE
+                this.groupsSvc.updateGroup(this.group.id, this.group).subscribe({
+                    next: () => {
+                        this.loadGroups();
+                        this.groupDialog = false;
+                        this.loading = false;
+                        this.cdr.markForCheck();
+                    }
                 });
-            } else {
-                this.product.id = this.createId();
-                this.products.push(this.product);
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Exitoso',
-                    detail: 'Grupo creado',
-                    life: 3000
+            } else { //quiero que si hay error se detenga el loading
+                // CREATE
+                this.groupsSvc.createGroup(this.group).subscribe({
+                    next: () => {
+                        this.loadGroups();
+                        this.groupDialog = false;
+                    }
                 });
             }
-
-            this.products = [...this.products];
-            this.productDialog = false;
-            this.product = {};
         }
     }
 }

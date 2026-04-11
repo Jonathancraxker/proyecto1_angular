@@ -7,7 +7,7 @@ export const publicGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   if (authService.isLoggedIn()) {
-    router.navigate([router.url]); //se redirije a la misma ruta en la que se encuentra, excepto login/register
+    router.navigate(['/home']); //se redirije a la misma ruta en la que se encuentra, excepto login/register
     return false; 
   }
 

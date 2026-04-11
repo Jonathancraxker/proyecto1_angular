@@ -1,13 +1,11 @@
 <div class="p-4">
-    <p-toast />
-    
     <div class="card p-4 shadow-2 border-round surface-card">
         <div class="flex justify-content-between align-items-center mb-4">
             <div>
                 <h2 class="text-3xl font-bold m-0 text-white">Gestión Global de Usuarios</h2>
                 <p class="text-secondary m-0">Panel de Control para SuperAdmin</p>
             </div>
-            <p-button *ifHasPermission="'user:add'" label="Add User" icon="pi pi-user-plus" (onClick)="openNew()" />
+            <p-button *ifHasPermission="'user:add'" label="Add User" icon="pi pi-user-plus" (onClick)="openNew()" [disabled]="loading"/>
         </div>
 
         <!-- Loading Spinner -->
@@ -36,7 +34,7 @@
                         <td>{{ u.username }}</td>
                         <td>{{ u.email }}</td>
                         <td>
-                            <div style="max-width: 360px;" class="flex flex-wrap gap-1">
+                            <div style="max-width: 280px;" class="flex flex-wrap gap-1">
                                 @for (permisoId of u.permisos; track permisoId) {
                                     <p-tag [value]="getPermisoNombre(permisoId)" severity="secondary" />
                                 } @empty {

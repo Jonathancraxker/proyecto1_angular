@@ -9,8 +9,6 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { Router, RouterLink } from "@angular/router"; 
 import { MessageModule } from 'primeng/message';
 import { InputMaskModule } from 'primeng/inputmask';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { PasswordModule } from 'primeng/password';
 import { DividerModule } from 'primeng/divider';
@@ -21,15 +19,13 @@ import { UserRegister } from '../../../models/register.interface';
 
 @Component({
   selector: 'app-register',
-  imports: [CardModule, ButtonModule, FormsModule, FloatLabelModule, InputGroupModule, InputTextModule, InputGroupAddonModule, RouterLink, MessageModule, InputMaskModule, ToastModule, InputNumberModule, PasswordModule, DividerModule, BreadcrumbModule, SelectButtonModule, ReactiveFormsModule],
+  imports: [CardModule, ButtonModule, FormsModule, FloatLabelModule, InputGroupModule, InputTextModule, InputGroupAddonModule, RouterLink, MessageModule, InputMaskModule, InputNumberModule, PasswordModule, DividerModule, BreadcrumbModule, SelectButtonModule, ReactiveFormsModule],
   standalone: true,
-  providers: [MessageService],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
 export class Register {
   private router = inject(Router);
-  private messageService = inject(MessageService);
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
     registerForm: FormGroup;
@@ -47,7 +43,7 @@ export class Register {
             Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d@#$!%*?&]{10,}$/)
           ]],
           username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
-          nombre_completo: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
+          nombre_completo: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(40)]],
           direccion: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
           telefono: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(10), Validators.pattern(/^\d{10}$/)]],
           edad: ['', [Validators.required, Validators.pattern(/^(SI|NO)$/)]],
@@ -76,12 +72,6 @@ export class Register {
 
     // Validación de edad (lógica de negocio)
     if (this.registerForm.get('edad')?.value === 'NO') {
-      this.messageService.add({ 
-        severity: 'error', 
-        summary: 'Error', 
-        detail: 'Lo sentimos, el registro solo es para mayores de edad.', 
-        life: 3000 
-      });
       return;
     }
 
@@ -102,28 +92,15 @@ export class Register {
       // 3. Llamada al servicio
       this.authService.register(userData).subscribe({
         next: (response) => {
-          this.messageService.add({ 
-            severity: 'success', 
-            summary: '¡Éxito!', 
-            detail: 'Usuario creado correctamente.', 
-            life: 2500 
-          });
           
           this.registerForm.reset();
           this.formSubmitted = false;
           
-          // Redirigir al login después de un pequeño delay para que vea el mensaje
-          setTimeout(() => this.router.navigate(['/']), 3000);
+          // Redirigir al login después de un pequeño delay
+          setTimeout(() => this.router.navigate(['/']), 2000);
         },
         error: (err) => {
-          // Manejo de errores (ej: email duplicado)
-          const errorDetail = err.error?.message || 'Error al registrar usuario';
-          this.messageService.add({ 
-            severity: 'error', 
-            summary: 'Error de registro', 
-            detail: errorDetail, 
-            life: 4000 
-          });
+          console.error('Error en el registro:', err);
         }
       });
     }

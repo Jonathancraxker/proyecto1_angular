@@ -14,6 +14,8 @@ export class HasPermissionDirective implements OnInit {
     private viewContainer: ViewContainerRef
   ) {}
 
+  
+  
   ngOnInit() {
     const permisosArray = Array.isArray(this.permisos) ? this.permisos : [this.permisos];
 

@@ -1,9 +1,5 @@
 export const environment = {
     production: false,
-    apiUsuarios: 'http://localhost:4000/anteiku', // Tu API de Node.js
-    //apiTickets: 'http://localhost:3307/api',  // Tu futura API de Python
+    apiUsuarios: 'http://localhost:4000/anteiku', // Node.js (Auth)
+    apiGrupos: 'http://localhost:4001/anteiku'    // Python (Grupos/Tickets)
 };
-
-/* 
-src/app/pages/auth/register 
-*/

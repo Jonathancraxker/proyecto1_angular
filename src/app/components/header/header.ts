@@ -10,6 +10,7 @@ import { Router, RouterLink, RouterLinkActive } from "@angular/router";
 import { ButtonModule } from 'primeng/button';
 import { MenuModule } from 'primeng/menu';
 
+import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-menubar-demo',
@@ -19,7 +20,7 @@ import { MenuModule } from 'primeng/menu';
     styleUrl: './header.css',
 })
 export class Header implements OnInit {
-    constructor(private router: Router) {}
+    constructor(private router: Router, private authSvc: AuthService) {}
     private messageService = Inject(MessageService);
     items: MenuItem[] | undefined;
 
@@ -69,6 +70,6 @@ export class Header implements OnInit {
         ];
     }
     logout() {
-    this.router.navigate(['/']); 
-  }
+    this.authSvc.logout();
+    }
 }
