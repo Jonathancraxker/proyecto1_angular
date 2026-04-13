@@ -1,48 +1,86 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router'; // Para capturar el :id de la ruta
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
 import { CommonModule } from '@angular/common';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+
+import { HasPermissionDirective } from '../../../directives/has-permission.directive';
+import { TicketsService } from '../../../services/tickets/tickets.service';
 
 @Component({
   selector: 'app-resumen',
   standalone: true,
-  imports: [CardModule, ButtonModule, TableModule, CommonModule],
+  imports: [CardModule, ButtonModule, TableModule, TagModule, CommonModule, ProgressSpinnerModule],
   templateUrl: './resumen.html',
   styleUrl: './resumen.css',
 })
 export class Resumen implements OnInit {
   activeTab: number = 0;
-  // Inyección de dependencias para capturar el parámetro de la URL
   private route = inject(ActivatedRoute);
+  private cdr = inject(ChangeDetectorRef);
+  private ticketsSvc = inject(TicketsService);
   
   groupId: string | null = '';
+  loading: boolean = false;
 
-  // 1. Resumen de tickets solicitado 
   resumen = {
-    total: 25,
-    pendiente: 10,
-    enProgreso: 5,
-    hecho: 8,
-    cerrado: 2
+    total: 0,
+    pendiente: 0,
+    enProgreso: 0,
+    hecho: 0,
+    cerrado: 0
   };
 
-  // 2. Mini-lista de tickets recientes 
-  ticketsRecientes = [
-    { id: 'TK-001', titulo: 'Error en Login', estado: 'Pendiente', prioridad: 'Alta' },
-    { id: 'TK-002', titulo: 'Ajustar estilos Sidebar', estado: 'En Progreso', prioridad: 'Media' },
-    { id: 'TK-003', titulo: 'Revisar DB', estado: 'Hecho', prioridad: 'Baja' }
-  ];
+  ticketsRecientes: any[] = [];
 
   ngOnInit() {
     // Captura el ID del grupo que seleccionaste en el Home
-    this.groupId = this.route.snapshot.paramMap.get('id');
-    console.log('Cargando datos para el grupo:', this.groupId);
+    this.groupId = this.route.parent?.snapshot.paramMap.get('id') || '';
+    if (this.groupId) {
+      // this.loadResumen();
+      this.loadData();
+    }
   }
 
-  // 3. Acción para el botón solicitado [cite: 20]
-  crearTicket() {
-    console.log('Abriendo modal para nuevo ticket...');
+  loadData() {
+    this.loading = true;
+
+    // 1. Obtener Stats del Grupo (SxTKS201)
+    this.ticketsSvc.getGroupStats(this.groupId!).subscribe({
+      next: (res) => {
+        const s = res.data;
+        this.resumen = {
+          total: Number(s.total) || 0,
+          pendiente: Number(s.pendientes) || 0,
+          enProgreso: Number(s.en_progreso) || 0,
+          hecho: Number(s.hechos) || 0,
+          cerrado: Number(s.cerrados) || 0
+        };
+        this.cdr.markForCheck();
+      }
+    });
+  // 2. Obtener los tickets recientes del grupo para mostrar en el resumen
+    this.ticketsSvc.getTicketsByGroup(this.groupId!).subscribe({
+      next: (res) => {
+        // Mostramos todos
+        this.ticketsRecientes = res.data;
+        this.loading = false;
+        this.cdr.markForCheck();
+      },
+      error: () => this.loading = false
+    });
   }
+  
+  getPrioritySeverity(prioridad: string) {
+    switch (prioridad) {
+      case 'Alta': return 'danger';
+      case 'Media': return 'warn';
+      case 'Baja': return 'secondary';
+      default: return 'contrast';
+    }
+  }
+
 }

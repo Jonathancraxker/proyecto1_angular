@@ -1,100 +1,151 @@
-import { Component } from '@angular/core';
-import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+
+// PrimeNG
 import { TagModule } from 'primeng/tag';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
-import { FormsModule } from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { InputTextModule } from 'primeng/inputtext';
+import { TooltipModule } from 'primeng/tooltip';
+
+
+// Servicios
+import { TicketsService } from '../../../services/tickets/tickets.service';
 
 @Component({
   selector: 'app-kanban',
   standalone: true,
   imports: [
-    CommonModule, DragDropModule, TagModule, AvatarModule, DialogModule, 
-    SelectModule, TextareaModule, FormsModule, ButtonModule, DatePickerModule, 
-    InputGroupModule, InputGroupAddonModule, SelectButtonModule
+    CommonModule, FormsModule, DragDropModule, TagModule, AvatarModule, DialogModule, 
+    SelectModule, TextareaModule, ButtonModule, DatePickerModule, 
+    InputGroupModule, InputGroupAddonModule, SelectButtonModule, InputTextModule, TooltipModule
   ],
   templateUrl: './kanban.html',
   styleUrl: './kanban.css',
 })
-export class Kanban {
+export class Kanban implements OnInit {
+  private ticketsSvc = inject(TicketsService);
+  private route = inject(ActivatedRoute);
+  private cdr = inject(ChangeDetectorRef);
+
+  // Estados de carga y datos
+  loading: boolean = false;
+  groupId: string | null = '';
+  allTickets: any[] = [];
+  columnas: any[] = [];
+  
+  // Modal Detalle
   displayDetail: boolean = false;
   selectedTicket: any = null;
-  
-  usuarioLogueado = 'Jonathan'; // Simulamos que Jonathan es el usuario loggeado
+  prioridadesCat: any[] = [];
+  estadosCat: any[] = [];
 
-  // Paso 9: Filtros Rápidos
+  // Filtros
   filtroActivo: string = 'todos';
   opcionesFiltro = [
     { label: 'Todos', value: 'todos' },
     { label: 'Mis tickets', value: 'mis-tickets' },
     { label: 'Sin asignar', value: 'sin-asignar' },
-    { label: 'Prioridad Alta', value: 'alta' }
+    { label: 'Prioridad Alta', value: 'alta' },
+    { label: 'Prioridad Media', value: 'media' },
+    { label: 'Prioridad Baja', value: 'baja' }
   ];
 
-  columnas = [
-    { 
-      nombre: 'Pendiente', 
-      id: 'todo', 
-      tickets: [
-        { id: 'TK-1', titulo: 'Tarea 1', responsable: 'Jonathan', prioridad: 'Alta', estado: 'Pendiente', fechaLimite: '2026-03-15' },
-        { id: 'TK-2', titulo: 'Tarea 3', responsable: 'Maria', prioridad: 'Alta', estado: 'Pendiente', fechaLimite: '2026-03-18' },
-      ]
-    },
-    { nombre: 'En Progreso', id: 'inprogress', tickets: [
-      { id: 'TK-5', titulo: 'Tarea 5', responsable: 'Ana', prioridad: 'Media', estado: 'En Progreso', fechaLimite: '2026-03-25' },
-      { id: 'TK-6', titulo: 'Tarea 6', responsable: 'Jonathan', prioridad: 'Alta', estado: 'En Progreso', fechaLimite: '2026-03-28' }
-    ] },
-    { nombre: 'Revisión', id: 'review', tickets: [
-      { id: 'TK-7', titulo: 'Tarea 7', responsable: 'Luis', prioridad: 'Baja', estado: 'Revisión', fechaLimite: '2026-03-30' },
-    ] },
-    { nombre: 'Hecho', id: 'done', tickets: [ 
-      { id: 'TK-8', titulo: 'Tarea 8', responsable: 'Sofia', prioridad: 'Media', estado: 'Hecho', fechaLimite: '2026-03-10' },
-      { id: 'TK-9', titulo: 'Tarea 9', responsable: 'Miguel', prioridad: 'Alta', estado: 'Hecho', fechaLimite: '2026-03-12' },
-      { id: 'TK-10', titulo: 'Tarea 10', responsable: '', prioridad: 'Baja', estado: 'Hecho', fechaLimite: '2026-03-14' }
-    ] },
-    { nombre: 'Bloqueado', id: 'block', tickets: [] }
-  ];
+  ngOnInit() {
+    // Obtenemos el ID del grupo desde el Dashboard (padre)
+    this.groupId = this.route.parent?.snapshot.paramMap.get('id') || '';
+    if (this.groupId) {
+      this.loadKanbanData();
+    }
+  }
 
-  // Lógica de Filtrado (Paso 9)
+  loadKanbanData() {
+    this.loading = true;
+    // 1. Cargamos Catálogos primero para armar las columnas
+    this.ticketsSvc.getCatalogos().subscribe({
+      next: (res) => {
+        const estados = res.data.estados;
+        this.estadosCat = res.data.estados.map((e: any) => ({ label: e.nombre, value: e.id }));
+        this.prioridadesCat = res.data.prioridades.map((p: any) => ({ label: p.nombre, value: p.id }));
+
+        // 2. Cargamos Tickets del grupo
+        this.ticketsSvc.getTicketsByGroup(this.groupId!).subscribe({
+          next: (resT) => {
+            this.allTickets = resT.data;
+            
+            // 3. Mapeamos columnas con sus respectivos tickets filtrados por nombre de estado
+            this.columnas = estados.map((est: any) => ({
+              id: est.id, // ID real de la DB para el Drag & Drop
+              nombre: est.nombre,
+              color: est.color,
+              tickets: this.allTickets.filter(t => t.estado === est.nombre)
+            }));
+
+            this.loading = false;
+            this.cdr.markForCheck();
+          }
+        });
+      },
+      error: () => this.loading = false
+    });
+  }
+
+  // Filtro que se aplica dentro de cada columna en el HTML
   getTicketsFiltrados(tickets: any[]) {
     if (this.filtroActivo === 'todos') return tickets;
-    if (this.filtroActivo === 'mis-tickets') return tickets.filter(t => t.responsable === this.usuarioLogueado);
-    if (this.filtroActivo === 'sin-asignar') return tickets.filter(t => !t.responsable);
-    if (this.filtroActivo === 'alta') return tickets.filter(t => t.prioridad === 'Alta');
-    return tickets;
+    
+    const userInfo = JSON.parse(localStorage.getItem('user_info') || '{}');
+    const userId = String(userInfo.id);
+
+    switch (this.filtroActivo) {
+      case 'mis-tickets': return tickets.filter(t => String(t.asignado_id) === userId);
+      case 'sin-asignar': return tickets.filter(t => !t.asignado_id);
+      case 'alta': return tickets.filter(t => t.prioridad === 'Alta');
+      case 'media': return tickets.filter(t => t.prioridad === 'Media');
+      case 'baja': return tickets.filter(t => t.prioridad === 'Baja');
+      default: return tickets;
+    }
   }
 
   drop(event: CdkDragDrop<any[]>) {
-    const ticket = event.previousContainer.data[event.previousIndex];
-
-    // REGLA: Si el ticket tiene responsable y no soy yo, NO permito el movimiento
-    if (ticket.responsable && ticket.responsable !== this.usuarioLogueado) {
-      console.warn('No puedes mover un ticket que no te pertenece');
-      return; 
-    }
-
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
+      const ticket = event.previousContainer.data[event.previousIndex];
+      const nuevoEstadoId = event.container.id; // Aquí recibimos el ID de la columna destino
+
       transferArrayItem(
         event.previousContainer.data,
         event.container.data,
         event.previousIndex,
         event.currentIndex
       );
+
+      // Actualizar en el Backend
+      this.ticketsSvc.updateTicket(ticket.id, { estado_id: Number(nuevoEstadoId) }).subscribe({
+        next: () => {
+          // Actualizamos el nombre del estado localmente para que el filtro no lo regrese
+          const colDestino = this.columnas.find(c => String(c.id) === nuevoEstadoId);
+          ticket.estado = colDestino.nombre;
+          this.cdr.markForCheck();
+        },
+        error: () => this.loadKanbanData() // Revertir si falla
+      });
     }
   }
 
-  getPrioritySeverity(prioridad: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" | undefined {
-    switch (prioridad.toLowerCase()) {
+  getPrioritySeverity(prioridad: string) {
+    switch (prioridad?.toLowerCase()) {
       case 'alta': return 'danger';
       case 'media': return 'warn';
       case 'baja': return 'info';
@@ -102,22 +153,34 @@ export class Kanban {
     }
   }
 
-  prioridadesChinas = [
-    { label: '(Extrema)', value: 'Extrema' },
-    { label: '(Alta)', value: 'Alta' },
-    { label: '(Media)', value: 'Media' },
-    { label: '(Baja)', value: 'Baja' },
-    { label: '(Mínima)', value: 'Minima' },
-    { label: '(Urgente)', value: 'Urgente' },
-    { label: '(Pendiente)', value: 'Indefinida' }
-  ];
-
   verDetalle(ticket: any) {
     this.selectedTicket = { ...ticket };
     this.displayDetail = true;
   }
 
   guardarCambios() {
-    this.displayDetail = false;
-  }
+  this.loading = true;
+
+  // Creamos el payload exacto que pide tu Back-end
+  const payload = {
+    grupo_id: Number(this.groupId),
+    titulo: this.selectedTicket.titulo,
+    descripcion: this.selectedTicket.descripcion,
+    asignado_id: this.selectedTicket.asignado_id ? Number(this.selectedTicket.asignado_id) : null,
+    estado_id: this.columnas.find(c => c.nombre === this.selectedTicket.estado)?.id,
+    prioridad_id: this.prioridadesCat.find(p => p.label === this.selectedTicket.prioridad)?.value,
+    fecha_final: this.selectedTicket.fecha_final ? new Date(this.selectedTicket.fecha_final).toISOString().split('T')[0] : null
+  };
+
+  this.ticketsSvc.updateTicket(this.selectedTicket.id, payload).subscribe({
+    next: () => {
+      this.displayDetail = false;
+      this.loadKanbanData();
+    },
+    error: (err) => {
+      this.loading = false;
+      console.error("Error al actualizar desde formulario:", err);
+    }
+  });
+}
 }

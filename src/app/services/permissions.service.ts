@@ -7,6 +7,49 @@ export class PermissionsService {
 
   // Mantenemos el signal como array de strings para que el resto de la app no truene
   private userPermissions = signal<string[]>([]);
+  public readonly permissions$ = this.userPermissions.asReadonly();
+
+
+  //       // GROUPS
+  //       { name: 'group:view', code: 7 },
+  //       // { name: 'group:add', code: 8 },
+  //       // { name: 'group:edit', code: 9 },
+  //       // { name: 'group:delete', code: 10 },
+  //       { name: 'group:manage', code: 11 },
+  //       // TICKETS
+  //       { name: 'tickets:view', code: 12 },
+  //       // { name: 'tickets:add', code: 13 },
+  //       // { name: 'tickets:edit', code: 14 },
+  //       // { name: 'tickets:delete', code: 15 },
+  //       // { name: 'tickets:edit:state', code: 16 },
+  //       // { name: 'tickets:edit:comment', code: 17 },
+  //       // { name: 'tickets:manage', code: 18 },
+  //       { name: 'tickets:move', code: 19 },
+  //       //ADMINISTRADOR
+  //       { name: 'admin:manage', code: 20 }
+
+  // Exponemos el signal como lectura para la directiva
+  private readonly permissionMap: { [key: string]: string } = {
+    "1": "user:view",
+    "2": "user:add",
+    "3": "user:edit",
+    "4": "user:edit:profile",
+    "5": "user:delete",
+    "6": "user:manage",
+    "7": "group:view",
+    "8": "group:add",
+    "9": "group:edit",
+    "10": "group:delete",
+    "11": "group:manage",
+    "12": "tickets:view",
+    "13": "tickets:add",
+    "14": "tickets:edit",
+    "15": "tickets:delete",
+    "16": "tickets:edit:state",
+    "17": "tickets:edit:comment",
+    "18": "tickets:manage",
+    "19": "tickets:move",
+  };
 
   // Modificamos setPermissions para que entienda el objeto de Node.js
   setPermissions(perms: any) {
@@ -34,5 +77,18 @@ export class PermissionsService {
 
   hasAnyPermission(perms: string[]): boolean {
     return perms.some(p => this.hasPermission(p));
+  }
+
+  // Este método será exclusivo para cuando entres a un Dashboard de Grupo
+  setGroupPermissions(perms: any[]) {
+    // 1. Convertimos los IDs de Python a sus nombres equivalentes usando el mapa
+    const translatedPerms = perms.map(p => {
+        const idStr = String(p);
+        return this.permissionMap[idStr] || idStr; // Si no está en el mapa, deja el ID
+    });
+
+    // 2. Guardamos en el signal
+    this.userPermissions.set(translatedPerms);
+    console.log("Permisos cargados en el Dashboard:", translatedPerms);
   }
 }

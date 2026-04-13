@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ViewChild } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
@@ -15,7 +15,12 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { SelectButtonModule } from 'primeng/selectbutton'; // Importante para filtros rápidos
 import { MessageService, ConfirmationService } from 'primeng/api';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ActivatedRoute } from '@angular/router';
+
 import { HasPermissionDirective } from '../../../directives/has-permission.directive';
+import { TicketsService } from '../../../services/tickets/tickets.service';
+
 
 @Component({
   selector: 'app-lista',
@@ -24,7 +29,7 @@ import { HasPermissionDirective } from '../../../directives/has-permission.direc
     CommonModule, FormsModule, TableModule, TagModule, ButtonModule, 
     InputTextModule, IconFieldModule, InputIconModule, ToolbarModule,
     DialogModule, SelectModule, TextareaModule, ConfirmDialogModule, 
-    ToastModule, HasPermissionDirective, SelectButtonModule
+    ToastModule, HasPermissionDirective, SelectButtonModule, ProgressSpinnerModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './lista.html',
@@ -35,9 +40,14 @@ export class Lista implements OnInit {
 
     private messageService = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
+    private ticketsSvc = inject(TicketsService);
+    private route = inject(ActivatedRoute);
+    private cdr = inject(ChangeDetectorRef);
 
     tickets: any[] = [];
     ticket: any = {};
+    groupId: string | null = '';
+    loading: boolean = false;
     selectedTickets: any[] | null = null;
     ticketDialog: boolean = false;
     submitted: boolean = false;
@@ -48,7 +58,9 @@ export class Lista implements OnInit {
         { label: 'Todos', value: 'todos' },
         { label: 'Mis tickets', value: 'mis-tickets' },
         { label: 'Sin asignar', value: 'sin-asignar' },
-        { label: 'Prioridad Alta', value: 'alta' }
+        { label: 'Prioridad Alta', value: 'alta' },
+        { label: 'Prioridad Media', value: 'media' },
+        { label: 'Prioridad Baja', value: 'baja' }
     ];
 
     statuses = [
@@ -59,20 +71,38 @@ export class Lista implements OnInit {
     ];
 
     ngOnInit() {
-        this.tickets = [
-            { id: 'TK-1', titulo: 'Tarea 1', responsable: 'Jonathan', estado: 'Pendiente', prioridad: 'Alta', fechaLimite: '2026-03-15', descripcion: 'Revisar logs' },
-            { id: 'TK-2', titulo: 'Tarea 2', responsable: 'Admin', estado: 'Hecho', prioridad: 'Baja', fechaLimite: '2026-03-10', descripcion: 'Cerrar sesión' },
-            { id: 'TK-3', titulo: 'Tarea 3', responsable: 'User', estado: 'En proceso', prioridad: 'Media', fechaLimite: '2026-03-20', descripcion: 'Actualizar documentación' },
-            { id: 'TK-4', titulo: 'Tarea 4', responsable: 'Jonathan', estado: 'Cerrado', prioridad: 'Alta', fechaLimite: '2026-03-25', descripcion: 'Integrar API externa' }
-        ];
+        this.groupId = this.route.parent?.snapshot.paramMap.get('id') || '';
+        if (this.groupId) {
+            this.loadTickets();
+        }
     }
 
-    // Lógica para devolver tickets filtrados (Paso 9)
+    loadTickets() {
+        this.loading = true;
+        this.ticketsSvc.getTicketsByGroup(this.groupId!).subscribe({
+            next: (res) => {
+                this.tickets = res.data;
+                this.loading = false;
+                this.cdr.markForCheck();
+            },
+            error: () => this.loading = false
+        });
+    }
+
     get ticketsFiltrados() {
+        if (!this.tickets) return [];
         if (this.filtroActivo === 'todos') return this.tickets;
-        if (this.filtroActivo === 'mis-tickets') return this.tickets.filter(t => t.responsable === 'Jonathan');
-        if (this.filtroActivo === 'sin-asignar') return this.tickets.filter(t => !t.responsable);
+        
+        // Ajustamos los nombres de campos a como vienen de Supabase (id_asignado, etc)
+        if (this.filtroActivo === 'mis-tickets') {
+            const userInfo = JSON.parse(localStorage.getItem('user_info') || '{}');
+            const userId = String(userInfo.id);
+            return this.tickets.filter(t => t.asignado_id === userId);
+        }
+        if (this.filtroActivo === 'sin-asignar') return this.tickets.filter(t => !t.asignado_id);
         if (this.filtroActivo === 'alta') return this.tickets.filter(t => t.prioridad === 'Alta');
+        if (this.filtroActivo === 'media') return this.tickets.filter(t => t.prioridad === 'Media');
+        if (this.filtroActivo === 'baja') return this.tickets.filter(t => t.prioridad === 'Baja');
         return this.tickets;
     }
 
@@ -104,15 +134,19 @@ export class Lista implements OnInit {
 
     deleteTicket(ticket: any) {
         this.confirmationService.confirm({
-            message: '¿Estás seguro de que quieres eliminar ' + ticket.id + '?',
-            header: 'Confirmar',
+            message: `¿Estás seguro de eliminar el ticket ${ticket.id}?`,
+            header: 'Confirmar Eliminación',
             icon: 'pi pi-exclamation-triangle',
-            acceptLabel: 'Sí',
-            rejectLabel: 'No',
             accept: () => {
-                this.tickets = this.tickets.filter((val) => val.id !== ticket.id);
-                this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Ticket eliminado', life: 3000 });
+                this.ticketsSvc.deleteTicket(ticket.id).subscribe({
+                    next: () => {
+                        this.loadTickets();
+                        this.loading = false;
+                        this.cdr.markForCheck();
+                    }
+                });
             }
         });
     }
+
 }

@@ -63,7 +63,7 @@ export class Sidebar implements OnInit{
             {
               label: 'Administrador', visible: this.permsSvc.hasPermission('admin:manage'),
                 items: [
-                    { label: 'Grupos', icon: 'pi pi-users', shortcut: 'ctrl+G', routerLink: '/groups', visible: this.permsSvc.hasPermission('admin:manage')},
+                  { label: 'Grupos', icon: 'pi pi-users', shortcut: 'ctrl+G', routerLink: '/groups', visible: this.permsSvc.hasPermission('admin:manage')},
                     { label: 'Usuarios', icon: 'pi pi-user', shortcut: 'ctrl+U', routerLink: '/admin-user', visible: this.permsSvc.hasPermission('admin:manage')},
                 ]
                 },
@@ -75,7 +75,7 @@ export class Sidebar implements OnInit{
                     label: 'Versión',
                     items: [
                         { 
-                            label: 'v1.0.6', 
+                            label: 'v1.0.7', 
                             icon: 'pi pi-info-circle',
                             disabled: true
                         }

@@ -10,23 +10,25 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
-import { MessageModule } from 'primeng/message'; // Para mostrar mensajes de validación
+import { MessageModule } from 'primeng/message';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 import { UsersService } from '../../services/admin-user/users.service';
 
 @Component({
-  selector: 'app-admin-user',
-  standalone: true,
-  imports: [
+selector: 'app-admin-user',
+standalone: true,
+imports: [
     CommonModule, FormsModule, TableModule, TagModule, ButtonModule, 
-    InputTextModule, DialogModule, MultiSelectModule, ToastModule, ConfirmDialogModule, HasPermissionDirective, MessageModule, ProgressSpinnerModule
-  ],
-  providers: [ConfirmationService],
-  templateUrl: './admin-user.html',
-  styleUrl: './admin-user.css'
+    InputTextModule, DialogModule, MultiSelectModule, ToastModule, ConfirmDialogModule, HasPermissionDirective, MessageModule, ProgressSpinnerModule, IconFieldModule, InputIconModule
+],
+providers: [ConfirmationService],
+templateUrl: './admin-user.html',
+styleUrl: './admin-user.css'
 })
 export class AdminUser implements OnInit {
     @ViewChild('dt') dt: any;
@@ -41,29 +43,28 @@ export class AdminUser implements OnInit {
     submitted: boolean = false;
     loading: boolean = false;
 
-    // Lista maestra de permisos para el SuperAdmin (Punto 10)
     permisosDisponibles = [
         // USERS
         { name: 'user:view', code: 1 },
-        { name: 'user:add', code: 2 },
-        { name: 'user:edit', code: 3 },
+        // { name: 'user:add', code: 2 },
+        // { name: 'user:edit', code: 3 },
         { name: 'user:edit:profile', code: 4 },
-        { name: 'user:delete', code: 5 },
-        { name: 'user:manage', code: 6 },
+        // { name: 'user:delete', code: 5 },
+        // { name: 'user:manage', code: 6 },
         // GROUPS
         { name: 'group:view', code: 7 },
-        { name: 'group:add', code: 8 },
-        { name: 'group:edit', code: 9 },
-        { name: 'group:delete', code: 10 },
+        // { name: 'group:add', code: 8 },
+        // { name: 'group:edit', code: 9 },
+        // { name: 'group:delete', code: 10 },
         { name: 'group:manage', code: 11 },
         // TICKETS
         { name: 'tickets:view', code: 12 },
-        { name: 'tickets:add', code: 13 },
-        { name: 'tickets:edit', code: 14 },
-        { name: 'tickets:delete', code: 15 },
-        { name: 'tickets:edit:state', code: 16 },
-        { name: 'tickets:edit:comment', code: 17 },
-        { name: 'tickets:manage', code: 18 },
+        // { name: 'tickets:add', code: 13 },
+        // { name: 'tickets:edit', code: 14 },
+        // { name: 'tickets:delete', code: 15 },
+        // { name: 'tickets:edit:state', code: 16 },
+        // { name: 'tickets:edit:comment', code: 17 },
+        // { name: 'tickets:manage', code: 18 },
         { name: 'tickets:move', code: 19 },
         //ADMINISTRADOR
         { name: 'admin:manage', code: 20 }
@@ -77,7 +78,6 @@ export class AdminUser implements OnInit {
         this.loading = true;
         this.usersSvc.getUsers().subscribe({
             next: (res) => {
-                // Mapeamos los datos de la BD al formato que usa tu HTML
                 this.users = res.data.map((u: any) => ({
                     id: u.id,
                     nombre_completo: u.nombre_completo,
@@ -85,18 +85,16 @@ export class AdminUser implements OnInit {
                     username: u.username,
                     direccion: u.direccion,
                     telefono: u.telefono,
-                    // Guardamos los IDs para el multiselect
-                    permisos: u.permisos_globales || [] 
+                    permisos: u.permisos_globales || []
                 }));
                 this.loading = false;
-                this.cdr.markForCheck(); // Asegura que Angular detecte los cambios
+                this.cdr.markForCheck();
             }
         });
     }
 
     getPermisoNombre(code: number): string {
         const permiso = this.permisosDisponibles.find(p => p.code === code);
-        // Si lo encuentra devuelve el nombre, si no, el ID convertido a string
         return permiso ? permiso.name : code.toString();
     }
 
@@ -108,11 +106,10 @@ export class AdminUser implements OnInit {
             email: this.user.email,
             username: this.user.username,
             permisos_globales: this.user.permisos,
-            password: this.user.password // Solo se usará en creación
+            password: this.user.password
         };
 
         if (this.user.id) {
-            // --- ACTUALIZAR ---
             this.usersSvc.updateUser(this.user.id, payload).subscribe({
                 next: () => {
                     this.finishSave();

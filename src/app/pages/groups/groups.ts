@@ -23,7 +23,7 @@ import { MultiSelectModule } from 'primeng/multiselect'; // Para los permisos
 // Services & Directives
 import { GroupsService } from '../../services/admin-groups/groups.service';
 import { UsersService } from '../../services/admin-user/users.service';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
 @Component({
@@ -36,7 +36,7 @@ imports: [
     InputIconModule, TextareaModule, TooltipModule, BadgeModule, ToolbarModule, ProgressSpinnerModule,
     SelectModule, MultiSelectModule
 ],
-providers: [ConfirmationService, MessageService],
+providers: [ConfirmationService],
 templateUrl: './groups.html',
 styleUrl: './groups.css',
 })
@@ -46,7 +46,6 @@ export class Groups implements OnInit {
     private groupsSvc = inject(GroupsService);
     private usersSvc = inject(UsersService);
     private confirmationService = inject(ConfirmationService);
-    private messageService = inject(MessageService);
     private cdr = inject(ChangeDetectorRef);
 
     groups: any[] = [];

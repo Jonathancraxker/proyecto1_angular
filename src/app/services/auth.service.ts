@@ -5,7 +5,7 @@ import { environment } from '../environments/environment';
 import { PermissionsService } from './permissions.service';
 import { Router } from '@angular/router';
 import { UserRegister, AuthResponse } from '../models/register.interface';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -49,6 +49,14 @@ export class AuthService {
       console.error('Error en el login:', error);
       return false;
     }
+  }
+
+  private permissions = new BehaviorSubject<number[]>([]); // O string[] según uses IDs o nombres
+
+  setGroupPermissions(newPerms: number[]) {
+      this.permsSvc.setGroupPermissions(newPerms);
+      // Opcional: Guardarlos en SessionStorage para que si refresca la página no se pierdan
+      sessionStorage.setItem('current_group_perms', JSON.stringify(newPerms));
   }
 
   checkSession() {

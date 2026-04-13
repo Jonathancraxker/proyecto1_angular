@@ -1,4 +1,10 @@
 <div class="p-4 flex flex-column gap-2">
+    @if (loading) {
+        <div class="flex flex-column align-items-center justify-content-center py-8" style="min-height: 400px;">
+            <p-progressSpinner ariaLabel="loading" strokeWidth="4" />
+            <span class="text-secondary mt-3">Cargando datos del grupo...</span>
+        </div>
+    } @else {
     <div class="flex justify-content-between align-items-center mb-2">
         <div>
             <h2 class="text-3xl font-bold m-0 text-white">Dashboard del Grupo: {{groupId}}</h2>
@@ -11,63 +17,47 @@
             <p-tab [value]="0" (click)="activeTab = 0" routerLink="resumen">Resumen</p-tab>
             <p-tab [value]="1" (click)="activeTab = 1" routerLink="kanban">Tablero Kanban</p-tab>
             <p-tab [value]="2" (click)="activeTab = 2" routerLink="lista">Vista de Lista</p-tab>
-            <p-tab [value]="3" (click)="activeTab = 3" routerLink="users">Gestión - Grupo</p-tab>
+            <p-tab *ifHasPermission="'group:manage'" [value]="3" (click)="activeTab = 3" routerLink="users">Gestión - Grupo</p-tab>
         </p-tablist>
     </p-tabs>
     
     <router-outlet></router-outlet>
-
-    <p-dialog [(visible)]="displayCreateModal" 
-              header="Crear Nuevo Ticket" 
-              [modal]="true" 
-              [style]="{ width: '550px' }" 
-              styleClass="p-fluid">
+    }
+    <p-dialog header="Nuevo Ticket" [(visible)]="displayCreateModal" [modal]="true" [style]="{width: '450px'}" appendTo="body">
+    <div class="flex flex-column gap-3">
+        <div>
+            <label for="titulo" class="block mb-1">Título</label>
+            <input pInputText id="titulo" [(ngModel)]="nuevoTicket.titulo" class="w-full" required/>
+            @if (!nuevoTicket.titulo) {
+                <small style="color: #dc3545">El título es requerido</small>
+            }
+        </div>    
         
-        <div class="flex flex-column gap-4 py-3">
-            
-            <div class="flex flex-column gap-2">
-                <label class="font-bold text-sm text-white-alpha-80">Título del Ticket *</label>
-                <input type="text" pInputText [(ngModel)]="nuevoTicket.titulo" 
-                       placeholder="Ej: Tarea..." class="w-full" />
-            </div>
-
-            <div class="flex flex-column gap-2">
-                <label class="font-bold text-sm text-white-alpha-80">Descripción</label>
-                <textarea pTextarea [(ngModel)]="nuevoTicket.descripcion" 
-                          rows="4" placeholder="Detalles de la tarea..." 
-                          class="w-full" style="resize: none;"></textarea>
-            </div>
-
-            <div class="grid">
-                <div class="col-6 flex flex-column gap-2">
-                    <label class="font-bold text-sm text-white-alpha-80">Estado Inicial</label>
-                    <p-select [options]="estados" [(ngModel)]="nuevoTicket.estado" 
-                              placeholder="Seleccionar estado" class="w-full"></p-select>
-                </div>
-                <div class="col-6 flex flex-column gap-2">
-                    <label class="font-bold text-sm text-white-alpha-80">Prioridad</label>
-                    <p-select [options]="prioridades" [(ngModel)]="nuevoTicket.prioridad" 
-                              placeholder="Seleccionar" class="w-full"></p-select>
-                </div>
-            </div>
-
-            <div class="flex flex-column gap-2">
-                <label class="font-bold text-sm text-white-alpha-80">Asignado a</label>
-                <div class="p-inputgroup">
-                    <span class="p-inputgroup-addon"><i class="pi pi-user"></i></span>
-                    <input type="text" pInputText [(ngModel)]="nuevoTicket.responsable" 
-                           placeholder="Nombre del usuario" class="w-full" />
-                </div>
-            </div>
+        <div>
+            <label for="desc" class="block mb-1">Descripción (opcional)</label>
+            <textarea pTextarea id="desc" [(ngModel)]="nuevoTicket.descripcion" rows="3" class="w-full"></textarea>
         </div>
 
-        <ng-template #footer>
-            <div class="flex justify-content-end gap-2 pt-2">
-                <p-button label="Cancelar" icon="pi pi-times" [text]="true" 
-                          severity="secondary" (onClick)="displayCreateModal = false"></p-button>
-                <p-button label="Crear" icon="pi pi-check" severity="primary"
-                          (onClick)="guardarTicket()" [disabled]="!nuevoTicket.titulo"></p-button>
+        <div class="grid">
+            <div class="col-6">
+                <label class="block mb-1">Prioridad</label>
+                <p-select [options]="prioridades" [(ngModel)]="nuevoTicket.prioridad_id" class="w-full" appendTo="body"></p-select>
             </div>
-        </ng-template>
-    </p-dialog>
+            <div class="col-6">
+                <label class="block mb-1">Estado</label>
+                <p-select [options]="estados" [(ngModel)]="nuevoTicket.estado_id" class="w-full" appendTo="body"></p-select>
+            </div>
+        </div>
+        
+        <div>
+            <label class="block mb-1">Fecha de Entrega</label>
+            <input type="date" pInputText [(ngModel)]="nuevoTicket.fecha_final" class="w-full" />
+        </div>
+    </div>
+
+    <ng-template #footer>
+        <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="displayCreateModal=false"></p-button>
+        <p-button label="Guardar" icon="pi pi-check" (onClick)="guardarTicket()" [disabled]="!nuevoTicket.titulo" [loading]="loading"></p-button>
+    </ng-template>
+</p-dialog>
 </div>

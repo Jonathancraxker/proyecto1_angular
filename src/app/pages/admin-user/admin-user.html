@@ -1,26 +1,32 @@
+@if (loading) {
+        <div class="flex flex-column align-items-center justify-content-center py-8">
+            <p-progressSpinner ariaLabel="loading" strokeWidth="4" />
+            <span class="text-secondary mt-3">Cargando usuarios...</span>
+        </div>
+    } @else {
 <div class="p-4">
     <div class="card p-4 shadow-2 border-round surface-card">
         <div class="flex justify-content-between align-items-center mb-4">
-            <div>
+            <div class="flex align-items-center justify-content-between">
                 <h2 class="text-3xl font-bold m-0 text-white">Gestión Global de Usuarios</h2>
-                <p class="text-secondary m-0">Panel de Control para SuperAdmin</p>
             </div>
-            <p-button *ifHasPermission="'user:add'" label="Add User" icon="pi pi-user-plus" (onClick)="openNew()" [disabled]="loading"/>
         </div>
 
-        <!-- Loading Spinner -->
-        <div class="card p-4 shadow-2 border-round surface-card relative">
-            @if (loading) {
-                <div class="absolute top-0 left-0 w-full h-full flex justify-content-center align-items-center border-round" style="z-index: 100;">
-                    <p-progressSpinner ariaLabel="loading" strokeWidth="4" fill="transparent" />
-                </div>
-            }            
+        <div class="flex align-items-center justify-content-between mb-4">
+            <p-iconfield class="mt-3">
+                    <p-inputicon class="pi pi-search" />
+                    <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Buscar usuario..." />
+            </p-iconfield>
+            <p-button *ifHasPermission="'admin:manage'" label="Add User" icon="pi pi-user-plus" (onClick)="openNew()" [disabled]="loading"/>
+        </div>
 
+        <div class="card p-4 shadow-2 border-round surface-card relative">      
             <p-table #dt [value]="users" [rows]="10" [paginator]="true" [globalFilterFields]="['nombre_completo', 'email']" 
                     styleClass="p-datatable-sm p-datatable-gridlines">
                 <ng-template #header>
                     <tr>
-                        <th pSortableColumn="nombre_completo">Nombre <p-sortIcon field="nombre_completo" /></th>
+                        <th pSortableColumn="id">ID <p-sortIcon field="id" /></th>
+                        <th pSortableColumn="nombre_completo">Nombre<p-sortIcon field="nombre_completo" /></th>
                         <th pSortableColumn="username">Username <p-sortIcon field="username" /></th>
                         <th pSortableColumn="email">Email <p-sortIcon field="email" /></th>
                         <th class="text-center">Permisos Asignados</th>
@@ -30,7 +36,8 @@
 
                 <ng-template #body let-u>
                     <tr class="text-gray-300">
-                        <td class="font-bold text-white">{{ u.nombre_completo }}</td>
+                        <td class="font-bold text-white">{{ u.id }}</td>
+                        <td>{{ u.nombre_completo }}</td>
                         <td>{{ u.username }}</td>
                         <td>{{ u.email }}</td>
                         <td>
@@ -43,8 +50,8 @@
                             </div>
                         </td>
                         <td class="text-center">
-                            <p-button *ifHasPermission="'user:edit'" icon="pi pi-pencil" [rounded]="true" [outlined]="true" class="mr-2" (onClick)="editUser(u)" />
-                            <p-button *ifHasPermission="'user:delete'" icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (onClick)="deleteUser(u)" />
+                            <p-button *ifHasPermission="'admin:manage'" icon="pi pi-pencil" [rounded]="true" [outlined]="true" class="mr-2" (onClick)="editUser(u)" />
+                            <p-button *ifHasPermission="'admin:manage'" icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (onClick)="deleteUser(u)" />
                         </td>
                     </tr>
                 </ng-template>
@@ -52,7 +59,7 @@
         </div>
     </div>
 </div>
-
+}
 <p-dialog [(visible)]="userDialog" [header]="user.id ? 'Editar Usuario' : 'Nuevo Usuario'" [modal]="true" [style]="{ width: '500px' }" styleClass="p-fluid">
     <ng-template #content>
         <div class="p-fluid">
@@ -77,7 +84,6 @@
                 <div [class]="!user.id ? 'field col-12 md:col-6' : 'field col-12 md:col-12'">
                     <label class="block font-bold mb-2 text-white-alpha-70">Email</label>
                     <input type="email" pInputText [(ngModel)]="user.email" required />
-                    <!-- Quiero un if que valide si el email es valido o no -->
                     @if (user.email && !isValidEmail(user.email)) {
                         <p-message severity="error" size="small" variant="simple" class="mt-2 ml-1">
                             Por favor ingresa un email válido.

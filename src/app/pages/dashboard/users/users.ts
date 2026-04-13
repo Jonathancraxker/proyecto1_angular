@@ -1,6 +1,9 @@
-import { Component, OnInit, inject, ViewChild } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+
+// PrimeNG
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
@@ -11,92 +14,146 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { MessageService, ConfirmationService } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+
+// Servicios y Directivas
+import { GroupsService } from '../../../services/admin-groups/groups.service';
 import { HasPermissionDirective } from '../../../directives/has-permission.directive';
 
 @Component({
-  selector: 'app-users',
-  standalone: true,
-  imports: [
+selector: 'app-users',
+standalone: true,
+imports: [
     CommonModule, FormsModule, TableModule, TagModule, ButtonModule, 
     InputTextModule, IconFieldModule, InputIconModule, ToolbarModule,
-    DialogModule, ToastModule, ConfirmDialogModule, HasPermissionDirective
-  ],
-  providers: [MessageService, ConfirmationService],
-  templateUrl: './users.html',
-  styleUrl: './users.css'
+    DialogModule, ToastModule, ConfirmDialogModule, HasPermissionDirective, ProgressSpinnerModule
+],
+providers: [ConfirmationService],
+templateUrl: './users.html',
+styleUrl: './users.css'
 })
 export class Users implements OnInit {
-    @ViewChild('dt') dt: any;
+@ViewChild('dt') dt: any;
 
-    private messageService = inject(MessageService);
-    private confirmationService = inject(ConfirmationService);
+private confirmationService = inject(ConfirmationService);
+private cdr = inject(ChangeDetectorRef);
+private route = inject(ActivatedRoute);
+private groupsSvc = inject(GroupsService);
 
-    users: any[] = [];
-    user: any = {};
-    userDialog: boolean = false;
-    
-    // Variables para la edición del grupo (Paso 7)
-    groupDialog: boolean = false;
-    groupName: string = 'Equipo DEV';
-    tempGroupName: string = ''; 
+users: any[] = [];
+user: any = {};
+currentGroupId!: number;
 
-    submitted: boolean = false;
+userDialog: boolean = false;
+groupDialog: boolean = false;
+submitted: boolean = false;
+loading: boolean = false;
 
-    ngOnInit() {
-        this.users = [
-            { id: 1, nombre: 'Jonathan Cruz', email: 'jonathan@uteq.edu.mx', rol: 'Admin', fechaIngreso: '2026-01-20' },
-            { id: 2, nombre: 'Emmanuel R.', email: 'emmanuel@dev.com', rol: 'Miembro', fechaIngreso: '2026-02-15' }
-        ];
+  // Info del Grupo
+groupName: string = '';
+GroupName: string = ''; 
+Descripcion: string = '';
+// Automaticamente implementa el cdr en donde se necesite para actualizar la vista cuando se modifiquen los datos.
+
+ngOnInit() {
+    // Obtenemos el ID del grupo de la ruta padre (/dashboard/:id/users)
+    const id = this.route.parent?.snapshot.paramMap.get('id');
+    if (id) {
+    this.currentGroupId = Number(id);
+    this.loading = true;
+    this.loadGroupData();
+    this.loadMembers();
     }
+}
 
-    // Modal para añadir usuarios
-    openNew() {
-        this.user = {};
-        this.submitted = false;
-        this.userDialog = true;
-    }
-
-    // Modal para editar el nombre del grupo
-    editGroupName() {
-        this.tempGroupName = this.groupName; // Cargamos el nombre actual
-        this.groupDialog = true;
-    }
-
-    saveGroupName() {
-        if (this.tempGroupName.trim()) {
-            this.groupName = this.tempGroupName;
-            this.groupDialog = false;
-            this.messageService.add({ 
-                severity: 'success', 
-                summary: 'Éxito', 
-                detail: 'Nombre del grupo actualizado' 
-            });
+loadGroupData() {
+    this.groupsSvc.getGroup(this.currentGroupId).subscribe({
+    next: (res: any) => {
+        this.groupName = res.data.nombre;
+        this.Descripcion = res.data.descripcion;
+        if (this.users.length > 0) {
+        this.loading = false;
         }
+        this.cdr.markForCheck();
     }
+    });
+}
 
-    // ... (restos de métodos deleteUser y saveUser se mantienen igual)
-    deleteUser(user: any) {
-        this.confirmationService.confirm({
-            message: `¿Estás seguro de eliminar a ${user.nombre} del grupo?`,
-            header: 'Confirmar eliminación',
-            icon: 'pi pi-user-minus',
-            acceptLabel: 'Eliminar',
-            rejectLabel: 'Cancelar',
-            accept: () => {
-                this.users = this.users.filter((val) => val.id !== user.id);
-                this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Usuario eliminado del grupo' });
-            }
+loadMembers() {
+    this.groupsSvc.getGroupMembers(this.currentGroupId).subscribe({
+    next: (res: any) => {
+        this.users = res.data;
+        if (this.groupName!== '') {
+        this.loading = false;
+        }
+        this.cdr.markForCheck();
+    },
+    error: (err) => console.error('Error al cargar miembros:', err)
+    });
+}
+
+  openNew() {
+    this.user = { email: '' };
+    this.submitted = false;
+    this.userDialog = true;
+  }
+
+  editGroupName() {
+    this.GroupName = this.groupName;
+    this.groupDialog = true;
+  }
+
+  saveGroupName() {
+    if (this.GroupName.trim()) {
+      const payload = { nombre: this.GroupName, descripcion: this.Descripcion };
+      this.groupsSvc.updateGroupInfo(this.currentGroupId, payload).subscribe({
+        next: () => {
+          this.groupName = this.GroupName;
+          this.groupDialog = false;
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          console.error('Error al actualizar nombre del grupo:', err);
+          this.cdr.markForCheck();
+        }
+      });
+    }
+  }
+
+  deleteUser(user: any) {
+    this.confirmationService.confirm({
+      message: `¿Estás seguro de eliminar a ${user.nombre} del grupo?`,
+      header: 'Confirmar eliminación',
+      icon: 'pi pi-user-minus',
+      acceptLabel: 'Eliminar',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.groupsSvc.removeMember(this.currentGroupId, user.id).subscribe({
+          next: () => {
+            this.users = this.users.filter((val) => val.id !== user.id);
+            this.cdr.markForCheck();
+          }
         });
-    }
+      }
+    }); 
+  }
 
-    saveUser() {
-        this.submitted = true;
-        if (this.user.email?.trim()) {
-            this.users.push({ ...this.user, id: Math.random(), rol: 'Miembro', fechaIngreso: new Date().toISOString().split('T')[0] });
-            this.userDialog = false;
-            this.user = {};
-            this.messageService.add({ severity: 'success', summary: 'Invitación enviada', detail: 'Usuario añadido por email' });
+  saveUser() {
+    this.submitted = true;
+    if (this.user.email?.trim()) {
+      this.groupsSvc.inviteUserByEmail(this.currentGroupId, this.user.email).subscribe({
+        next: () => {
+          this.loadMembers();
+          this.userDialog = false;
+          this.user = {};
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          this.cdr.markForCheck();
         }
+      });
     }
+  }
 }
