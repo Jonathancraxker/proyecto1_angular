@@ -50,7 +50,7 @@ export class AdminUser implements OnInit {
         // { name: 'user:edit', code: 3 },
         { name: 'user:edit:profile', code: 4 },
         // { name: 'user:delete', code: 5 },
-        // { name: 'user:manage', code: 6 },
+        { name: 'user:manage', code: 6 },
         // GROUPS
         { name: 'group:view', code: 7 },
         // { name: 'group:add', code: 8 },
@@ -65,9 +65,9 @@ export class AdminUser implements OnInit {
         // { name: 'tickets:edit:state', code: 16 },
         // { name: 'tickets:edit:comment', code: 17 },
         // { name: 'tickets:manage', code: 18 },
-        { name: 'tickets:move', code: 19 },
+        // { name: 'tickets:move', code: 19 },
         //ADMINISTRADOR
-        { name: 'admin:manage', code: 20 }
+        // { name: 'admin:manage', code: 20 }
     ];
 
     ngOnInit() {

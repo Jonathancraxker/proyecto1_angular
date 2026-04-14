@@ -17,7 +17,7 @@
                     <p-inputicon class="pi pi-search" />
                     <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Buscar usuario..." />
             </p-iconfield>
-            <p-button *ifHasPermission="'admin:manage'" label="Add User" icon="pi pi-user-plus" (onClick)="openNew()" [disabled]="loading"/>
+            <p-button *ifHasPermission="'user:manage'" label="Add User" icon="pi pi-user-plus" (onClick)="openNew()" [disabled]="loading"/>
         </div>
 
         <div class="card p-4 shadow-2 border-round surface-card relative">      
@@ -50,8 +50,8 @@
                             </div>
                         </td>
                         <td class="text-center">
-                            <p-button *ifHasPermission="'admin:manage'" icon="pi pi-pencil" [rounded]="true" [outlined]="true" class="mr-2" (onClick)="editUser(u)" />
-                            <p-button *ifHasPermission="'admin:manage'" icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (onClick)="deleteUser(u)" />
+                            <p-button *ifHasPermission="'user:manage'" icon="pi pi-pencil" [rounded]="true" [outlined]="true" class="mr-2" (onClick)="editUser(u)" />
+                            <p-button *ifHasPermission="'user:manage'" icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (onClick)="deleteUser(u)" />
                         </td>
                     </tr>
                 </ng-template>

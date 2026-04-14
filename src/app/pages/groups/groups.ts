@@ -124,26 +124,26 @@ export class Groups implements OnInit {
         // 2. Cargar la lista de permisos disponibles
         this.permisosDisponibles = [
         // USERS
-        { name: 'user:view', id: 1 },
+        // { name: 'user:view', id: 1 },
         { name: 'user:add', id: 2 },
         { name: 'user:edit', id: 3 },
-        { name: 'user:edit:profile', id: 4 },
+        // { name: 'user:edit:profile', id: 4 },
         { name: 'user:delete', id: 5 },
-        { name: 'user:manage', id: 6 },
+        // { name: 'user:manage', id: 6 },
         // GROUPS
-        { name: 'group:view', id: 7 },
+        // { name: 'group:view', id: 7 },
         { name: 'group:add', id: 8 },
         { name: 'group:edit', id: 9 },
         { name: 'group:delete', id: 10 },
-        { name: 'group:manage', id: 11 },
+        // { name: 'group:manage', id: 11 },
         // TICKETS
-        { name: 'tickets:view', id: 12 },
+        // { name: 'tickets:view', id: 12 },
         { name: 'tickets:add', id: 13 },
         { name: 'tickets:edit', id: 14 },
         { name: 'tickets:delete', id: 15 },
         { name: 'tickets:edit:state', id: 16 },
-        { name: 'tickets:edit:comment', id: 17 },
-        { name: 'tickets:manage', id: 18 },
+        // { name: 'tickets:edit:comment', id: 17 },
+        // { name: 'tickets:manage', id: 18 },
         { name: 'tickets:move', id: 19 },
         ];
     }

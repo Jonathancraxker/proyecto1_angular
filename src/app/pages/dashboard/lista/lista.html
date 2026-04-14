@@ -44,7 +44,6 @@
 
                 <ng-template #header>
                     <tr>
-                        <th style="width: 3rem"><p-tableHeaderCheckbox /></th>
                         <th pSortableColumn="id">ID <p-sortIcon field="id" /></th>
                         <th pSortableColumn="titulo">Título <p-sortIcon field="titulo" /></th>
                         <th pSortableColumn="prioridad">Prioridad <p-sortIcon field="prioridad" /></th>
@@ -57,7 +56,6 @@
 
                 <ng-template #body let-ticket>
                     <tr>
-                        <td><p-tableCheckbox [value]="ticket" /></td>
                         <td class="font-mono text-blue-400 font-bold">{{ ticket.id }}</td>
                         <td class="font-medium">{{ ticket.titulo }}</td>
                         <td>
@@ -75,8 +73,8 @@
                         </td>
                         <td>{{ ticket.fecha_final | date:'dd/MM/yyyy' }}</td>
                         <td>
-                            <p-button icon="pi pi-pencil" [rounded]="true" [outlined]="true" class="mr-2" 
-                                      (click)="editTicket(ticket)" 
+                            <p-button icon="pi pi-pencil" [rounded]="true" [outlined]="true" class="mr-2" *ifHasPermission="'tickets:edit'"
+                                    (click)="editTicket(ticket)" 
                                       [pTooltip]="puedoEditar(ticket) ? 'Editar' : 'Solo lectura'" />
                             
                             <p-button *ifHasPermission="'tickets:delete'" icon="pi pi-trash" [rounded]="true" [outlined]="true" 

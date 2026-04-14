@@ -41,12 +41,12 @@ export const routes: Routes = [
             {
                 path: 'groups',
                 loadComponent: () => import('./pages/groups/groups').then(m => m.Groups),
-                canActivate: [hasPermissionGuard('user:view')]
+                canActivate: [hasPermissionGuard('group:manage')]
             },
             {
             path: 'admin-user',
             loadComponent: () => import('./pages/admin-user/admin-user').then(m => m.AdminUser),
-            canActivate: [hasPermissionGuard('user:view')]
+            canActivate: [hasPermissionGuard('user:manage')]
             },
             {
             path: 'dashboard/:id',
@@ -67,7 +67,7 @@ export const routes: Routes = [
                 {
                   path: 'users', // Vista de tabla para gestión de usuarios en el proyecto
                 loadComponent: () => import('./pages/dashboard/users/users').then(m => m.Users),
-                canActivate: [hasPermissionGuard('group:manage')]
+                // canActivate: [hasPermissionGuard('group:manage')]
                 },
                 {
                 path: 'historial',

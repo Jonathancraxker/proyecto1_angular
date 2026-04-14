@@ -9,25 +9,6 @@ export class PermissionsService {
   private userPermissions = signal<string[]>([]);
   public readonly permissions$ = this.userPermissions.asReadonly();
 
-
-  //       // GROUPS
-  //       { name: 'group:view', code: 7 },
-  //       // { name: 'group:add', code: 8 },
-  //       // { name: 'group:edit', code: 9 },
-  //       // { name: 'group:delete', code: 10 },
-  //       { name: 'group:manage', code: 11 },
-  //       // TICKETS
-  //       { name: 'tickets:view', code: 12 },
-  //       // { name: 'tickets:add', code: 13 },
-  //       // { name: 'tickets:edit', code: 14 },
-  //       // { name: 'tickets:delete', code: 15 },
-  //       // { name: 'tickets:edit:state', code: 16 },
-  //       // { name: 'tickets:edit:comment', code: 17 },
-  //       // { name: 'tickets:manage', code: 18 },
-  //       { name: 'tickets:move', code: 19 },
-  //       //ADMINISTRADOR
-  //       { name: 'admin:manage', code: 20 }
-
   // Exponemos el signal como lectura para la directiva
   private readonly permissionMap: { [key: string]: string } = {
     "1": "user:view",

@@ -44,7 +44,7 @@
                 <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre" /></th>
                 <th pSortableColumn="email">Email <p-sortIcon field="email" /></th>
                 <th pSortableColumn="fechaingreso">Fecha Ingreso <p-sortIcon field="fechaingreso" /></th>
-                <th *ifHasPermission="'user:manage'">Acciones</th>
+                <th >Acciones</th>
             </tr>
         </ng-template>
 
@@ -53,7 +53,7 @@
                 <td class="font-bold text-white">{{ member.nombre }}</td>
                 <td>{{ member.email }}</td>
                 <td>{{ member.fechaingreso | date:'dd/MM/yyyy' }}</td>
-                <td *ifHasPermission="'user:manage'">
+                <td *ifHasPermission="'user:delete'">
                     <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteUser(member)" />
                 </td>
             </tr>
