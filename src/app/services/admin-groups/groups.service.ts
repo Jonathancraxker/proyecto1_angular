@@ -8,7 +8,7 @@ import { environment } from '../../environments/environment';
 })
 export class GroupsService {
     private http = inject(HttpClient);
-    private apiUrl = `${environment.apiGrupos}/groups`;
+    private apiUrl = environment.apiGrupos;
 
     private getHeaders() {
         const token = localStorage.getItem('token'); // La llave que usaste en AuthService
@@ -25,7 +25,8 @@ export class GroupsService {
 
     // 1. Obtener todos los grupos (con los conteos de integrantes/tickets)
     getGroups(): Observable<any> {
-        return this.http.get<any>(this.apiUrl, { headers: this.getHeaders() });
+        // return this.http.get<any>(this.apiUrl, { headers: this.getHeaders() });
+        return this.http.get<any>(this.apiUrl + '/', { headers: this.getHeaders() });
     }
 
     getGroup(groupId: number): Observable<any> {

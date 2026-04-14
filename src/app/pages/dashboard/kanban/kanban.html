@@ -1,5 +1,11 @@
-<div class="p-4 flex flex-column gap-4">
-    
+    @if (loading) {
+        <div class="flex flex-column align-items-center justify-content-center py-8" style="min-height: 400px;">
+            <p-progressSpinner ariaLabel="loading" strokeWidth="4" />
+            <span class="text-secondary mt-3">Cargando tickets...</span>
+        </div>
+    } @else {
+<div class="flex flex-column align-items-center justify-content-center py-2 gap-4">
+    <div class="w-full px-1" style="max-width: 95vw;">
     <div class="flex align-items-center gap-3 p-3 surface-card border-round shadow-2" style="background-color: #1e1e1e; border: 1px solid #333;">
         <span class="text-secondary font-bold mr-2"><i class="pi pi-filter mr-1"></i> Filtros rápidos:</span>
         <p-selectButton 
@@ -10,7 +16,7 @@
         </p-selectButton>
     </div>
 
-    <div cdkDropListGroup class="flex gap-4 overflow-x-auto pb-4">
+    <div cdkDropListGroup class="flex gap-4 overflow-x-auto pb-4 mt-4">
         @for (col of columnas; track col.id) {
             <div class="flex-1 p-3 border-round-xl shadow-4" style="background-color: #1e1e1e; min-width: 310px; border: 1px solid #333;">
                 
@@ -30,11 +36,14 @@
                     
                     @for (ticket of getTicketsFiltrados(col.tickets); track ticket.id) {
                         <div cdkDrag 
-                             (click)="verDetalle(ticket)"
-                             class="p-3 shadow-2 cursor-move border-round surface-card border-1 border-gray-800 hover:border-blue-500 transition-all">
+                        (click)="verDetalle(ticket)"
+                        [cdkDragDisabled]="!puedoMover(ticket)"
+                        [class.opacity-60]="!puedoMover(ticket)"
+                        [class.cursor-default]="!puedoMover(ticket)"
+                        class="p-3 shadow-2 cursor-move border-round surface-card border-1 border-gray-800 hover:border-blue-500 transition-all">
                             
                             <div class="flex justify-content-between mb-2">
-                               <span class="text-xs font-mono text-blue-400 font-bold">TK-{{ticket.id}}</span>
+                               <span class="text-xs font-mono text-blue-400 font-bold">ID:{{ticket.id}}</span>
                                <p-tag [value]="ticket.prioridad" [severity]="getPrioritySeverity(ticket.prioridad)"></p-tag>
                             </div>
 
@@ -55,9 +64,10 @@
             </div>
         }
     </div>
+    </div>
 </div>
 
-<p-dialog [(visible)]="displayDetail" [header]="'Detalle: TK-' + selectedTicket?.id" [modal]="true" [style]="{ width: '450px' }" styleClass="p-fluid">
+<p-dialog [(visible)]="displayDetail" [header]="'Detalle:' + selectedTicket?.id" [modal]="true" [style]="{ width: '450px' }" styleClass="p-fluid">
     <div class="flex flex-column gap-3">
         @if (selectedTicket) {
             <div>
@@ -75,12 +85,9 @@
             <div class="grid">
                 <div class="col-6">
                     <label class="block mb-1">Prioridad</label>
-                    <p-select [options]="prioridadesCat" [(ngModel)]="selectedTicket.prioridad" placeholder="Selecciona" appendTo="body"></p-select>
+                    <p-select [options]="prioridades" [(ngModel)]="selectedTicket.prioridad_id" placeholder="Selecciona" appendTo="body"></p-select>
                 </div>
-                <div class="col-6">
-                    <label class="block mb-1">Estado</label>
-                    <p-select [options]="estadosCat" [(ngModel)]="selectedTicket.estado" class="w-full" appendTo="body"></p-select>
-                </div>
+                
             </div>
             <div>
                 <label class="block mb-1">Fecha de Entrega</label>
@@ -93,3 +100,4 @@
         <p-button label="Guardar" icon="pi pi-check" (onClick)="guardarCambios()"></p-button>
     </ng-template>
 </p-dialog>
+}

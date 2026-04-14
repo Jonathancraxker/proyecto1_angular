@@ -51,6 +51,8 @@ export class Lista implements OnInit {
     selectedTickets: any[] | null = null;
     ticketDialog: boolean = false;
     submitted: boolean = false;
+    prioridadesCat: any[] = [];
+    estadosCat: any[] = [];
 
     // Paso 9: Filtros Rápidos
     filtroActivo: string = 'todos';
@@ -77,8 +79,20 @@ export class Lista implements OnInit {
         }
     }
 
-    loadTickets() {
+    loadInitialData() {
         this.loading = true;
+        // Cargamos catálogos y luego tickets
+        this.ticketsSvc.getCatalogos().subscribe({
+            next: (res) => {
+                this.estadosCat = res.data.estados.map((e: any) => ({ label: e.nombre, value: e.id }));
+                this.prioridadesCat = res.data.prioridades.map((p: any) => ({ label: p.nombre, value: p.id }));
+                this.loadTickets();
+            },
+            error: () => this.loading = false
+        });
+    }
+
+    loadTickets() {
         this.ticketsSvc.getTicketsByGroup(this.groupId!).subscribe({
             next: (res) => {
                 this.tickets = res.data;
@@ -87,6 +101,52 @@ export class Lista implements OnInit {
             },
             error: () => this.loading = false
         });
+    }
+
+    saveTicket() {
+        this.submitted = true;
+
+        if (!this.ticket.titulo) return;
+
+        this.loading = true;
+
+        // Buscamos los IDs basados en los labels seleccionados en el modal
+        const estadoId = this.estadosCat.find(e => e.label === this.ticket.estado)?.value || this.ticket.estado_id;
+        
+        // La prioridad en tu modal parece estar bindeada a ticket.prioridad (el texto)
+        const prioridadId = this.prioridadesCat.find(p => p.label === this.ticket.prioridad)?.value || this.ticket.prioridad_id;
+
+        const payload = {
+            grupo_id: Number(this.groupId),
+            titulo: this.ticket.titulo,
+            descripcion: this.ticket.descripcion || '',
+            asignado_id: this.ticket.asignado_id ? Number(this.ticket.asignado_id) : null,
+            estado_id: Number(estadoId),
+            prioridad_id: Number(prioridadId),
+            fecha_final: this.ticket.fecha_final ? new Date(this.ticket.fecha_final).toISOString().split('T')[0] : null
+        };
+
+        if (this.ticket.id) {
+            // ACTUALIZAR
+            this.ticketsSvc.updateTicket(this.ticket.id, payload).subscribe({
+                next: () => {
+                    this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Ticket actualizado' });
+                    this.loadTickets();
+                    this.hideDialog();
+                },
+                error: () => this.loading = false
+            });
+        } else {
+            // CREAR (Si lo necesitas en el futuro)
+            this.ticketsSvc.createTicket(payload).subscribe({
+                next: () => {
+                    this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Ticket creado' });
+                    this.loadTickets();
+                    this.hideDialog();
+                },
+                error: () => this.loading = false
+            });
+        }
     }
 
     get ticketsFiltrados() {

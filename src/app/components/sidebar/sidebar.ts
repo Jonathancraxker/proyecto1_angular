@@ -58,13 +58,13 @@ export class Sidebar implements OnInit{
             },
             {
                 separator: true,
-                visible: this.permsSvc.hasPermission('admin:manage')
+                visible: this.permsSvc.hasPermission('user:view')
             },
             {
-              label: 'Administrador', visible: this.permsSvc.hasPermission('admin:manage'),
+              label: 'Administrador', visible: this.permsSvc.hasPermission('user:view'),
                 items: [
-                  { label: 'Grupos', icon: 'pi pi-users', shortcut: 'ctrl+G', routerLink: '/groups', visible: this.permsSvc.hasPermission('admin:manage')},
-                    { label: 'Usuarios', icon: 'pi pi-user', shortcut: 'ctrl+U', routerLink: '/admin-user', visible: this.permsSvc.hasPermission('admin:manage')},
+                  { label: 'Grupos', icon: 'pi pi-users', shortcut: 'ctrl+G', routerLink: '/groups', visible: this.permsSvc.hasPermission('group:view')},
+                  { label: 'Usuarios', icon: 'pi pi-user', shortcut: 'ctrl+U', routerLink: '/admin-user', visible: this.permsSvc.hasPermission('user:view')},
                 ]
                 },
                 {

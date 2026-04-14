@@ -15,16 +15,17 @@ export class AuthService {
   private permsSvc = inject(PermissionsService);
   private router = inject(Router);
   
+  private apiUrlAuth = environment.apiUsuariosAuth; // http://localhost:4000/anteiku
   private apiUrl = environment.apiUsuarios; // http://localhost:4000/anteiku
 
   register(userData: UserRegister): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/signup`, userData);
+    return this.http.post<AuthResponse>(`${this.apiUrlAuth}/signup`, userData);
   }
 
   async login(credentials: any): Promise<boolean> {
     try {
       const response: any = await firstValueFrom(
-        this.http.post(`${this.apiUrl}/login`, credentials)
+        this.http.post(`${this.apiUrlAuth}/login`, credentials)
       );
 
       // Validamos según el formato de tu backend (statusCode 200)
@@ -57,6 +58,11 @@ export class AuthService {
       this.permsSvc.setGroupPermissions(newPerms);
       // Opcional: Guardarlos en SessionStorage para que si refresca la página no se pierdan
       sessionStorage.setItem('current_group_perms', JSON.stringify(newPerms));
+  }
+
+  //validar permiso hasPermissions tickets:move
+  hasPermission(perm: string): boolean {
+    return this.permsSvc.hasPermission(perm);
   }
 
   checkSession() {

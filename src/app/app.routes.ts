@@ -41,12 +41,12 @@ export const routes: Routes = [
             {
                 path: 'groups',
                 loadComponent: () => import('./pages/groups/groups').then(m => m.Groups),
-                canActivate: [hasPermissionGuard('admin:manage')]
+                canActivate: [hasPermissionGuard('user:view')]
             },
             {
             path: 'admin-user',
             loadComponent: () => import('./pages/admin-user/admin-user').then(m => m.AdminUser),
-            canActivate: [hasPermissionGuard('admin:manage')]
+            canActivate: [hasPermissionGuard('user:view')]
             },
             {
             path: 'dashboard/:id',
