@@ -66,4 +66,9 @@ addComment(ticketId: string, contenido: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/${ticketId}/comments`, { contenido }, { headers: this.getHeaders() });
 }
 
+// Historial de cambios
+getGroupHistory(groupId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/group-history/${groupId}`, { headers: this.getHeaders() });
+}
+
 }

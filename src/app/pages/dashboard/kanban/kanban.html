@@ -72,7 +72,7 @@
         @if (selectedTicket) {
             <div>
                 <label for="titulo" class="block mb-1">Título</label>
-                <input pInputText id="titulo" [(ngModel)]="selectedTicket.titulo" class="w-full" required/>
+                <input pInputText id="titulo" [disabled]="!puedoMover(selectedTicket)" [(ngModel)]="selectedTicket.titulo" class="w-full" required/>
                 @if (!selectedTicket.titulo) {
                     <small style="color: #dc3545">El título es requerido</small>
                 }
@@ -80,24 +80,55 @@
 
             <div>
                 <label for="desc" class="block mb-1">Descripción (opcional)</label>
-                <textarea pTextarea id="desc" [(ngModel)]="selectedTicket.descripcion" rows="3" class="w-full"></textarea>
+                <textarea pTextarea id="desc" [disabled]="!puedoMover(selectedTicket)" [(ngModel)]="selectedTicket.descripcion" rows="3" class="w-full"></textarea>
             </div>
             <div class="grid">
                 <div class="col-6">
                     <label class="block mb-1">Prioridad</label>
-                    <p-select [options]="prioridades" [(ngModel)]="selectedTicket.prioridad_id" placeholder="Selecciona" appendTo="body"></p-select>
+                    <p-select [options]="prioridades" [disabled]="!puedoMover(selectedTicket)"  [(ngModel)]="selectedTicket.prioridad_id" placeholder="Selecciona" appendTo="body"></p-select>
                 </div>
                 
             </div>
             <div>
                 <label class="block mb-1">Fecha de Entrega</label>
-                <input type="date" pInputText [(ngModel)]="selectedTicket.fecha_final" class="w-full" />
+                <input type="date" pInputText [disabled]="!puedoMover(selectedTicket)" [(ngModel)]="selectedTicket.fecha_final" class="w-full" />
+            </div>
+
+            <hr class="border-300 my-2">
+            <div class="mt-2">
+                <label class="block font-bold mb-2"><i class="pi pi-comments mr-2"></i>Historial de Comentarios</label>
+                <div class="flex flex-column gap-2 overflow-y-auto" style="max-height: 200px; background: #2a2a2a; border-radius: 8px; padding: 10px;">
+                    @if (comentarios.length === 0) {
+                        <small class="text-secondary italic">No hay comentarios aún.</small>
+                    }
+                    @for (c of comentarios; track c.id) {
+                        <div class="p-2 border-round" style="background: #333; border-left: 4px solid #3b82f6;">
+                            <div class="flex justify-content-between align-items-center mb-1">
+                                <span class="text-xs font-bold text-blue-400">{{c.autor_nombre}}</span>
+                                <span class="text-xs text-gray-500">{{c.creado_en | date:'dd/MM/yyyy'}}</span>
+                            </div>
+                            <p class="m-0 text-sm text-white">{{c.contenido}}</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <label class="block mb-1 font-bold">Añadir Comentario (opcional)</label>
+                <div class="flex gap-2">
+                    <textarea pTextarea [(ngModel)]="nuevoComentario" rows="2" class="w-full" placeholder="Escribe algo..."></textarea>
+                </div>
+                <div class="flex justify-content-end mt-2">
+                    <p-button label="Enviar" *ifHasPermission="'tickets:edit:comment'" icon="pi pi-send" size="small" [disabled]="!nuevoComentario.trim()" (onClick)="agregarComentario()"></p-button>
+                </div>
             </div>
         }
     </div>
     <ng-template #footer>
         <p-button label="Cerrar" icon="pi pi-times" [text]="true" (onClick)="displayDetail = false"></p-button>
-        <p-button label="Guardar" icon="pi pi-check" (onClick)="guardarCambios()"></p-button>
+        @if (puedoMover(selectedTicket)) {
+        <p-button label="Guardar" *ifHasPermission="'tickets:edit'" icon="pi pi-check" [disabled]="!selectedTicket.titulo" (onClick)="guardarCambios()"></p-button>
+        }
     </ng-template>
 </p-dialog>
 }

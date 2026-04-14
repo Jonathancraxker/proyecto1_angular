@@ -25,7 +25,9 @@ export class AuthService {
   async login(credentials: any): Promise<boolean> {
     try {
       const response: any = await firstValueFrom(
-        this.http.post(`${this.apiUrlAuth}/login`, credentials)
+        this.http.post(`${this.apiUrlAuth}/login`, credentials, {
+          withCredentials: true
+        })
       );
 
       // Validamos según el formato de tu backend (statusCode 200)
@@ -76,11 +78,21 @@ export class AuthService {
   return !!localStorage.getItem('token'); // Devuelve true si existe el token
   }
   
-  logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user_perms');
-    localStorage.removeItem('user_info');
-    this.permsSvc.setPermissions([]);
-    this.router.navigate(['/']);
+async logout() {
+    try {
+      await firstValueFrom(
+        this.http.post(`${this.apiUrlAuth}/logout`, {}, {
+          withCredentials: true
+        })
+      );
+    } catch (error) {
+      console.error('Error en el logout:', error);
+    } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user_perms');
+      localStorage.removeItem('user_info');
+      this.permsSvc.setPermissions([]);
+      this.router.navigate(['/']);
+    }
   }
 }

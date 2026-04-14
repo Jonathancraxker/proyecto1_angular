@@ -9,15 +9,16 @@
         <div>
             <h2 class="text-3xl font-bold m-0 text-white">Dashboard del Grupo: {{groupId}}</h2>
         </div>
-        <p-button *ifHasPermission="'group:manage'" label="Crear Ticket" icon="pi pi-plus" (onClick)="crearTicket()"></p-button>
+        <p-button *ifHasPermission="'tickets:add'" label="Crear Ticket" icon="pi pi-plus" (onClick)="crearTicket()"></p-button>
     </div>
 
-    <p-tabs [value]="0">
+    <p-tabs [value]="activeTab">
         <p-tablist>
-            <p-tab [value]="0" (click)="activeTab = 0" routerLink="resumen">Resumen</p-tab>
-            <p-tab [value]="1" (click)="activeTab = 1" routerLink="kanban">Tablero Kanban</p-tab>
-            <p-tab [value]="2" (click)="activeTab = 2" routerLink="lista">Vista de Lista</p-tab>
-            <p-tab *ifHasPermission="'group:manage'" [value]="3" (click)="activeTab = 3" routerLink="users">Gestión - Grupo</p-tab>
+            <p-tab [value]="0" routerLink="resumen">Resumen</p-tab>
+            <p-tab [value]="1" routerLink="kanban">Tablero Kanban</p-tab>
+            <p-tab [value]="2" routerLink="lista">Vista de Lista</p-tab>
+            <p-tab *ifHasPermission="'group:manage'" [value]="3" routerLink="users">Gestión - Grupo</p-tab>
+            <p-tab [value]="4" routerLink="historial">Historial</p-tab>
         </p-tablist>
     </p-tabs>
     

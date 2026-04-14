@@ -4,33 +4,30 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
-// PrimeNG
 import { TagModule } from 'primeng/tag';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
-import { DatePickerModule } from 'primeng/datepicker';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
-// Servicios
 import { TicketsService } from '../../../services/tickets/tickets.service';
 import { AuthService } from '../../../services/auth.service';
+import { HasPermissionDirective } from "../../../directives/has-permission.directive";
 
 @Component({
   selector: 'app-kanban',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, DragDropModule, TagModule, AvatarModule, DialogModule, 
-    SelectModule, TextareaModule, ButtonModule, DatePickerModule, ProgressSpinnerModule,
-    InputGroupModule, InputGroupAddonModule, SelectButtonModule, InputTextModule, TooltipModule
-  ],
+    CommonModule, FormsModule, DragDropModule, TagModule, AvatarModule, DialogModule,
+    SelectModule, TextareaModule, ButtonModule, ProgressSpinnerModule,
+    SelectButtonModule, InputTextModule, TooltipModule,
+    HasPermissionDirective
+],
   templateUrl: './kanban.html',
   styleUrl: './kanban.css',
 })
@@ -40,20 +37,18 @@ export class Kanban implements OnInit {
   private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
 
-  // Estados de carga y datos
   loading: boolean = false;
   groupId: string | null = '';
   allTickets: any[] = [];
   columnas: any[] = [];
   currentUser: any;
-
-  // Modal Detalle
+  comentarios: any[] = [];
+  nuevoComentario: string = '';
   displayDetail: boolean = false;
   selectedTicket: any = null;
   prioridades: any[] = [];
   estados: any[] = [];
 
-  // Filtros
   filtroActivo: string = 'todos';
   opcionesFiltro = [
     { label: 'Todos', value: 'todos' },
@@ -77,37 +72,30 @@ export class Kanban implements OnInit {
 
   // MÉTODO PARA EL HTML
   puedoMover(ticket: any): boolean {
-    // 1. Validamos el permiso global usando la lógica de tu AuthService
     const tienePermisoGlobal = this.authSvc.hasPermission('tickets:move');
     
-    // 2. Validamos si el ticket es del usuario actual
     const esMio = String(ticket.asignado_id) === String(this.currentUser?.id);
 
-    // Solo puede mover si tiene el permiso Y el ticket es suyo
     return tienePermisoGlobal && esMio;
   }
 
   loadKanbanData() {
     this.loading = true;
-    // 1. Cargamos Catálogos primero para armar las columnas
     this.ticketsSvc.getCatalogos().subscribe({
       next: (res) => {
         const estados = res.data.estados;
         this.estados = res.data.estados.map((e: any) => ({ label: e.nombre, value: e.id }));
         this.prioridades = res.data.prioridades.map((p: any) => ({ label: p.nombre, value: p.id }));
         this.cdr.markForCheck();
-        // 2. Cargamos Tickets del grupo
         this.ticketsSvc.getTicketsByGroup(this.groupId!).subscribe({
           next: (resT) => {
             this.allTickets = resT.data;
-            
             this.columnas = estados.map((est: any) => ({
               id: est.id,
               nombre: est.nombre,
               color: est.color,
               tickets: this.allTickets.filter(t => t.estado === est.nombre)
             }));
-
             this.loading = false;
             this.cdr.markForCheck();
           }
@@ -139,7 +127,7 @@ export class Kanban implements OnInit {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
       const ticket = event.previousContainer.data[event.previousIndex];
-      const nuevoEstadoId = event.container.id; // Aquí recibimos el ID de la columna destino
+      const nuevoEstadoId = event.container.id;
 
       transferArrayItem(
         event.previousContainer.data,
@@ -148,15 +136,13 @@ export class Kanban implements OnInit {
         event.currentIndex
       );
 
-      // Actualizar en el Backend
       this.ticketsSvc.updateTicket(ticket.id, { estado_id: Number(nuevoEstadoId) }).subscribe({
         next: () => {
-          // Actualizamos el nombre del estado localmente para que el filtro no lo regrese
           const colDestino = this.columnas.find(c => String(c.id) === nuevoEstadoId);
           ticket.estado = colDestino.nombre;
           this.cdr.markForCheck();
         },
-        error: () => this.loadKanbanData() // Revertir si falla
+        error: () => this.loadKanbanData()
       });
     }
   }
@@ -165,12 +151,14 @@ export class Kanban implements OnInit {
     switch (prioridad_id) {
       case 'Alta': return 'danger';
       case 'Media': return 'warn';
-      case 'Baja': return 'success';
+      case 'Baja': return 'secondary';
       default: return 'contrast';
     }
   }
 
   verDetalle(ticket: any) {
+      this.selectedTicket = { ...ticket };
+      this.nuevoComentario = ''; // Limpiar el input
       // 1. Clonamos el ticket
       this.selectedTicket = { ...ticket };
 
@@ -185,19 +173,38 @@ export class Kanban implements OnInit {
           const eFound = this.estados.find(e => e.label === this.selectedTicket.estado);
           this.selectedTicket.estado_id = eFound ? eFound.value : null;
       }
-
-      // 3. FORMATEAR LA FECHA PARA EL INPUT DATE
-      // Si la fecha existe, tomamos solo los primeros 10 caracteres (YYYY-MM-DD)
       if (this.selectedTicket.fecha_final) {
           this.selectedTicket.fecha_final = this.selectedTicket.fecha_final.substring(0, 10);
       }
 
+      this.ticketsSvc.getComments(ticket.id).subscribe({
+          next: (res) => {
+              // Como tu backend devuelve [ [comentarios], {message} ]
+              this.comentarios = res.data[0] || [];
+              this.cdr.markForCheck();
+          }
+      });
       this.displayDetail = true;
   }
 
-  guardarCambios() {
-    this.loading = true;
+  agregarComentario() {
+      if (!this.nuevoComentario.trim()) return;
 
+      this.ticketsSvc.addComment(this.selectedTicket.id, this.nuevoComentario).subscribe({
+          next: () => {
+              // Recargamos comentarios para ver el nuevo
+              this.verDetalle(this.selectedTicket); 
+              this.nuevoComentario = '';
+          }
+      });
+  }
+
+  guardarCambios() {
+    if (!this.puedoMover(this.selectedTicket)) {
+        console.warn("Intento de edición no autorizado");
+        return;
+    }
+    this.loading = true;
     const payload = {
         grupo_id: Number(this.groupId),
         titulo: this.selectedTicket.titulo,

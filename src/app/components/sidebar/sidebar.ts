@@ -35,7 +35,7 @@ export class Sidebar implements OnInit{
                     {
                         label: 'Home',
                         icon: 'pi pi-home',
-                        shortcut: 'ctrl+S',
+                        // shortcut: 'ctrl+S',
                         routerLink: '/home',
                         visible: this.permsSvc.hasPermission('user:view')
                     }
@@ -50,7 +50,7 @@ export class Sidebar implements OnInit{
                     {
                         label: 'Perfil',
                         icon: 'pi pi-id-card',
-                        shortcut: 'ctrl+P',
+                        // shortcut: 'ctrl+P',
                         routerLink: '/profile',
                         visible: this.permsSvc.hasPermission('user:edit:profile')
                     },
@@ -63,8 +63,8 @@ export class Sidebar implements OnInit{
             {
               label: 'Administrador', visible: this.permsSvc.hasPermission('user:view'),
                 items: [
-                  { label: 'Grupos', icon: 'pi pi-users', shortcut: 'ctrl+G', routerLink: '/groups', visible: this.permsSvc.hasPermission('group:view')},
-                  { label: 'Usuarios', icon: 'pi pi-user', shortcut: 'ctrl+U', routerLink: '/admin-user', visible: this.permsSvc.hasPermission('user:view')},
+                  { label: 'Grupos', icon: 'pi pi-users', /*shortcut: 'ctrl+G',*/ routerLink: '/groups', visible: this.permsSvc.hasPermission('group:view')},
+                  { label: 'Usuarios', icon: 'pi pi-user', /* shortcut: 'ctrl+U',*/ routerLink: '/admin-user', visible: this.permsSvc.hasPermission('user:view')},
                 ]
                 },
                 {
@@ -86,7 +86,7 @@ export class Sidebar implements OnInit{
                     {
                     label: 'Logout',
                     icon: 'pi pi-sign-out',
-                    shortcut: 'ctrl+Q',
+                    // shortcut: 'ctrl+Q',
                     linkClass: 'btn-logout',
                     command: () => this.logout()
                     
@@ -97,54 +97,54 @@ export class Sidebar implements OnInit{
     }
   
 
-    // Definir ctrl +
-@HostListener('window:keydown.control.q', ['$event'])
-  onLogoutShortcut(event: any) {
-    event.preventDefault();
-    this.logout();
-  }
+//     // Definir ctrl +
+// @HostListener('window:keydown.control.q', ['$event'])
+//   onLogoutShortcut(event: any) {
+//     event.preventDefault();
+//     this.logout();
+//   }
 
-@HostListener('window:keydown.control.s', ['$event'])
-  onKeyDown(event: any) {
-    event.preventDefault();
-    this.crearNuevoDocumento();
-  }
+// @HostListener('window:keydown.control.s', ['$event'])
+//   onKeyDown(event: any) {
+//     event.preventDefault();
+//     this.crearNuevoDocumento();
+//   }
 
-@HostListener('window:keydown.control.p', ['$event'])
-  onLanding(event: any) {
-    event.preventDefault();
-    this.perfil();
-  }
+// @HostListener('window:keydown.control.p', ['$event'])
+//   onLanding(event: any) {
+//     event.preventDefault();
+//     this.perfil();
+//   }
   
-  @HostListener('window:keydown.control.g', ['$event'])
-  onGroups(event: any) {
-    event.preventDefault();
-    this.groups();
-  }
+//   @HostListener('window:keydown.control.g', ['$event'])
+//   onGroups(event: any) {
+//     event.preventDefault();
+//     this.groups();
+//   }
 
-  @HostListener('window:keydown.control.u', ['$event'])
-  onUsers(event: any) {
-    event.preventDefault();
-    this.Users();
-  }
+//   @HostListener('window:keydown.control.u', ['$event'])
+//   onUsers(event: any) {
+//     event.preventDefault();
+//     this.Users();
+//   }
 
-    //funciones:
-    crearNuevoDocumento() {
-    console.log('Acción de crear nuevo documento ejecutada');
-    this.router.navigate(['/home'])
-  }
+//     //funciones:
+//     crearNuevoDocumento() {
+//     console.log('Acción de crear nuevo documento ejecutada');
+//     this.router.navigate(['/home'])
+//   }
   
-  perfil() {
-    this.router.navigate(['/profile'])
-  }
+//   perfil() {
+//     this.router.navigate(['/profile'])
+//   }
 
-  groups() {
-    this.router.navigate(['/groups'])
-  }
+//   groups() {
+//     this.router.navigate(['/groups'])
+//   }
 
-  Users() {
-    this.router.navigate(['/admin-user'])
-  }
+//   Users() {
+//     this.router.navigate(['/admin-user'])
+//   }
 
   logout() {
     this.authSvc.logout();

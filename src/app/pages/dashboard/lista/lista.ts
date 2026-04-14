@@ -7,40 +7,39 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { ToolbarModule } from 'primeng/toolbar';
 import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToastModule } from 'primeng/toast';
-import { SelectButtonModule } from 'primeng/selectbutton'; // Importante para filtros rápidos
-import { MessageService, ConfirmationService } from 'primeng/api';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { ConfirmationService } from 'primeng/api';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ActivatedRoute } from '@angular/router';
+import { TooltipModule } from 'primeng/tooltip';
 
 import { HasPermissionDirective } from '../../../directives/has-permission.directive';
 import { TicketsService } from '../../../services/tickets/tickets.service';
-
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-lista',
   standalone: true,
   imports: [
     CommonModule, FormsModule, TableModule, TagModule, ButtonModule, 
-    InputTextModule, IconFieldModule, InputIconModule, ToolbarModule,
+    InputTextModule, IconFieldModule, InputIconModule,
     DialogModule, SelectModule, TextareaModule, ConfirmDialogModule, 
-    ToastModule, HasPermissionDirective, SelectButtonModule, ProgressSpinnerModule
+    HasPermissionDirective, SelectButtonModule, ProgressSpinnerModule, TooltipModule
   ],
-  providers: [MessageService, ConfirmationService],
+  providers: [ConfirmationService],
   templateUrl: './lista.html',
   styleUrl: './lista.css'
 })
 export class Lista implements OnInit {
     @ViewChild('dt') dt: any;
 
-    private messageService = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
     private ticketsSvc = inject(TicketsService);
+    private authSvc = inject(AuthService);
     private route = inject(ActivatedRoute);
     private cdr = inject(ChangeDetectorRef);
 
@@ -48,13 +47,13 @@ export class Lista implements OnInit {
     ticket: any = {};
     groupId: string | null = '';
     loading: boolean = false;
-    selectedTickets: any[] | null = null;
     ticketDialog: boolean = false;
     submitted: boolean = false;
+    selectedTickets: any[] = [];
     prioridadesCat: any[] = [];
     estadosCat: any[] = [];
+    currentUser: any;
 
-    // Paso 9: Filtros Rápidos
     filtroActivo: string = 'todos';
     opcionesFiltro = [
         { label: 'Todos', value: 'todos' },
@@ -65,23 +64,18 @@ export class Lista implements OnInit {
         { label: 'Prioridad Baja', value: 'baja' }
     ];
 
-    statuses = [
-        { label: 'Hecho', value: 'Hecho' },
-        { label: 'En proceso', value: 'En proceso' },
-        { label: 'Pendiente', value: 'Pendiente' },
-        { label: 'Cerrado', value: 'Cerrado' }
-    ];
-
     ngOnInit() {
+        const savedUser = localStorage.getItem('user_info');
+        if (savedUser) this.currentUser = JSON.parse(savedUser);
+
         this.groupId = this.route.parent?.snapshot.paramMap.get('id') || '';
         if (this.groupId) {
-            this.loadTickets();
+            this.loadInitialData(); // Cargamos catálogos y luego tickets
         }
     }
 
     loadInitialData() {
         this.loading = true;
-        // Cargamos catálogos y luego tickets
         this.ticketsSvc.getCatalogos().subscribe({
             next: (res) => {
                 this.estadosCat = res.data.estados.map((e: any) => ({ label: e.nombre, value: e.id }));
@@ -93,6 +87,7 @@ export class Lista implements OnInit {
     }
 
     loadTickets() {
+        this.loading = true;
         this.ticketsSvc.getTicketsByGroup(this.groupId!).subscribe({
             next: (res) => {
                 this.tickets = res.data;
@@ -103,78 +98,72 @@ export class Lista implements OnInit {
         });
     }
 
+    // Lógica unificada para editar
+    editTicket(ticket: any) {
+        this.ticket = { ...ticket };
+
+        // 1. Sincronizar IDs para los Dropdowns
+        if (this.ticket.prioridad) {
+            this.ticket.prioridad_id = this.prioridadesCat.find(p => p.label === this.ticket.prioridad)?.value;
+        }
+        if (this.ticket.estado) {
+            this.ticket.estado_id = this.estadosCat.find(e => e.label === this.ticket.estado)?.value;
+        }
+
+        // 2. Formatear fecha para el input type="date"
+        if (this.ticket.fecha_final) {
+            this.ticket.fecha_final = this.ticket.fecha_final.substring(0, 10);
+        }
+
+        this.ticketDialog = true;
+    }
+
     saveTicket() {
         this.submitted = true;
-
         if (!this.ticket.titulo) return;
 
         this.loading = true;
-
-        // Buscamos los IDs basados en los labels seleccionados en el modal
-        const estadoId = this.estadosCat.find(e => e.label === this.ticket.estado)?.value || this.ticket.estado_id;
-        
-        // La prioridad en tu modal parece estar bindeada a ticket.prioridad (el texto)
-        const prioridadId = this.prioridadesCat.find(p => p.label === this.ticket.prioridad)?.value || this.ticket.prioridad_id;
 
         const payload = {
             grupo_id: Number(this.groupId),
             titulo: this.ticket.titulo,
             descripcion: this.ticket.descripcion || '',
             asignado_id: this.ticket.asignado_id ? Number(this.ticket.asignado_id) : null,
-            estado_id: Number(estadoId),
-            prioridad_id: Number(prioridadId),
+            estado_id: Number(this.ticket.estado_id),
+            prioridad_id: Number(this.ticket.prioridad_id),
             fecha_final: this.ticket.fecha_final ? new Date(this.ticket.fecha_final).toISOString().split('T')[0] : null
         };
 
-        if (this.ticket.id) {
-            // ACTUALIZAR
-            this.ticketsSvc.updateTicket(this.ticket.id, payload).subscribe({
-                next: () => {
-                    this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Ticket actualizado' });
-                    this.loadTickets();
-                    this.hideDialog();
-                },
-                error: () => this.loading = false
-            });
-        } else {
-            // CREAR (Si lo necesitas en el futuro)
-            this.ticketsSvc.createTicket(payload).subscribe({
-                next: () => {
-                    this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Ticket creado' });
-                    this.loadTickets();
-                    this.hideDialog();
-                },
-                error: () => this.loading = false
-            });
-        }
+        this.ticketsSvc.updateTicket(this.ticket.id, payload).subscribe({
+            next: () => {
+                this.loadTickets();
+                this.hideDialog();
+            },
+            error: () => this.loading = false
+        });
+    }
+
+    // Permisos (Igual que en Kanban)
+    puedoEditar(ticket: any): boolean {
+        const tienePermiso = this.authSvc.hasPermission('tickets:move'); // O tickets:edit
+        const esMio = String(ticket.asignado_id) === String(this.currentUser?.id);
+        return tienePermiso && esMio;
     }
 
     get ticketsFiltrados() {
         if (!this.tickets) return [];
         if (this.filtroActivo === 'todos') return this.tickets;
         
-        // Ajustamos los nombres de campos a como vienen de Supabase (id_asignado, etc)
-        if (this.filtroActivo === 'mis-tickets') {
-            const userInfo = JSON.parse(localStorage.getItem('user_info') || '{}');
-            const userId = String(userInfo.id);
-            return this.tickets.filter(t => t.asignado_id === userId);
+        const userId = String(this.currentUser?.id);
+
+        switch (this.filtroActivo) {
+            case 'mis-tickets': return this.tickets.filter(t => String(t.asignado_id) === userId);
+            case 'sin-asignar': return this.tickets.filter(t => !t.asignado_id);
+            case 'alta': return this.tickets.filter(t => t.prioridad === 'Alta');
+            case 'media': return this.tickets.filter(t => t.prioridad === 'Media');
+            case 'baja': return this.tickets.filter(t => t.prioridad === 'Baja');
+            default: return this.tickets;
         }
-        if (this.filtroActivo === 'sin-asignar') return this.tickets.filter(t => !t.asignado_id);
-        if (this.filtroActivo === 'alta') return this.tickets.filter(t => t.prioridad === 'Alta');
-        if (this.filtroActivo === 'media') return this.tickets.filter(t => t.prioridad === 'Media');
-        if (this.filtroActivo === 'baja') return this.tickets.filter(t => t.prioridad === 'Baja');
-        return this.tickets;
-    }
-
-    openNew() {
-        this.ticket = { estado: 'Pendiente' };
-        this.submitted = false;
-        this.ticketDialog = true;
-    }
-
-    editTicket(ticket: any) {
-        this.ticket = { ...ticket };
-        this.ticketDialog = true;
     }
 
     hideDialog() {
@@ -182,14 +171,12 @@ export class Lista implements OnInit {
         this.submitted = false;
     }
 
-    getSeverity(estado: string) {
-        switch (estado) {
-            case 'Hecho': return 'success';
-            case 'En proceso': return 'info';
-            case 'Pendiente': return 'warn';
-            case 'Cerrado': return 'danger';
-            default: return 'secondary';
-        }
+    getSeverity(prioridad: string) {
+        const p = prioridad?.toLowerCase();
+        if (p === 'alta') return 'danger';
+        if (p === 'media') return 'warn';
+        if (p === 'baja') return 'success';
+        return 'secondary';
     }
 
     deleteTicket(ticket: any) {
@@ -201,12 +188,9 @@ export class Lista implements OnInit {
                 this.ticketsSvc.deleteTicket(ticket.id).subscribe({
                     next: () => {
                         this.loadTickets();
-                        this.loading = false;
-                        this.cdr.markForCheck();
                     }
                 });
             }
         });
     }
-
 }

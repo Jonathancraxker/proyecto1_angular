@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
-import { ActivatedRoute, RouterOutlet, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterOutlet, RouterLink } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
@@ -31,6 +31,7 @@ import { TicketsService } from '../../services/tickets/tickets.service';
 })
 export class Dashboard implements OnInit {
   activeTab: number = 0;
+  private router = inject(Router);
   private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
   private groupsSvc = inject(GroupsService);
@@ -56,6 +57,8 @@ export class Dashboard implements OnInit {
 
   ngOnInit() {
     this.groupId = this.route.snapshot.paramMap.get('id');
+    this.syncActiveTab();
+    this.groupId = this.route.snapshot.paramMap.get('id');
     this.loadInitialData(); // Cargar catálogos al iniciar
     // 1. Obtenemos el ID del grupo de la URL
     this.groupId = this.route.snapshot.paramMap.get('id');
@@ -70,6 +73,17 @@ export class Dashboard implements OnInit {
     if (this.groupId && this.currentUser) {
       this.loadPermissionsForGroup(Number(this.groupId));
     }
+  }
+
+  syncActiveTab() {
+    const url = this.router.url;
+    
+    if (url.includes('resumen')) this.activeTab = 0;
+    else if (url.includes('kanban')) this.activeTab = 1;
+    else if (url.includes('lista')) this.activeTab = 2;
+    else if (url.includes('users')) this.activeTab = 3;
+    else if (url.includes('historial')) this.activeTab = 4;
+    else this.activeTab = 0; // Default
   }
 
   loadInitialData() {

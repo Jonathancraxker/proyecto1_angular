@@ -69,6 +69,11 @@ export const routes: Routes = [
                 loadComponent: () => import('./pages/dashboard/users/users').then(m => m.Users),
                 canActivate: [hasPermissionGuard('group:manage')]
                 },
+                {
+                path: 'historial',
+                loadComponent: () => import('./pages/dashboard/historial/historial').then(m => m.Historial),
+                // canActivate: [hasPermissionGuard('group:manage')]
+                },
                 { path: '', redirectTo: 'resumen', pathMatch: 'full' },
             ]
             }

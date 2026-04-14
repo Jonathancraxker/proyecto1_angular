@@ -1,10 +1,10 @@
-@if (loading) {
-        <div class="flex flex-column align-items-center justify-content-center py-8">
+<div class="flex flex-column align-items-center justify-content-center py-2 gap-4">
+    @if (loading && tickets.length === 0) {
+        <div class="flex flex-column align-items-center justify-content-center py-8" style="min-height: 400px;">
             <p-progressSpinner ariaLabel="loading" strokeWidth="4" />
             <span class="text-secondary mt-3">Cargando tickets...</span>
         </div>
     } @else {
-<div class="flex flex-column align-items-center justify-content-center py-2 gap-4">
     <div class="w-full px-1" style="max-width: 95vw;">
         
         <div class="flex align-items-center gap-3 p-3 surface-card border-round shadow-2 mb-3" style="background-color: #1e1e1e; border: 1px solid #333;">
@@ -20,27 +20,25 @@
         <div class="card p-4 shadow-2 border-round surface-card">            
 
             <p-table #dt [value]="ticketsFiltrados" [rows]="10" [paginator]="true" 
-                     [globalFilterFields]="['id', 'titulo', 'responsable', 'estado']" 
+                     [globalFilterFields]="['id', 'titulo', 'asignado_email', 'estado', 'prioridad']" 
                      [(selection)]="selectedTickets" [rowHover]="true" dataKey="id"
                      styleClass="p-datatable-sm">
                 
                 <ng-template #caption>
                     <div class="flex justify-content-between align-items-center mb-4">
-                        <div class="flex align-items-center justify-content-between">
-                            <h2 class="text-3xl font-bold m-0 text-white">Listado de Tickets</h2>
-                        </div>
+                        <h2 class="text-3xl font-bold m-0 text-white">Listado de Tickets</h2>
+                        
                     </div>
 
                     <div class="flex gap-3 mt-3 justify-content-end align-items-center">
-                        <span class="text-secondary font-bold mr-2"><i class="pi pi-filter mr-1"></i> Filtrar por estado:</span>
-                        <p-select [options]="statuses" (onChange)="dt.filter($event.value, 'estado', 'equals')" 
-                        placeholder="Filtrar Estado" [showClear]="true" class="w-sm" appendTo="body"/>
-                        <div class="flex align-items-end gap-2">
-                            <p-iconfield>
-                                        <p-inputicon class="pi pi-search" />
-                                        <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Buscar ticket..." />
+                        <span class="text-secondary font-bold">Filtro por estado:</span>
+                        <p-select [options]="estadosCat" (onChange)="dt.filter($event.value, 'estado', 'equals')" 
+                                  optionLabel="label" optionValue="label"
+                                  placeholder="Todos los estados" [showClear]="true" class="w-8rem" appendTo="body"/>
+                                  <p-iconfield>
+                                <p-inputicon class="pi pi-search" />
+                                <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Buscar en tabla..." />
                             </p-iconfield>
-                        </div>
                     </div>
                 </ng-template>
 
@@ -49,79 +47,91 @@
                         <th style="width: 3rem"><p-tableHeaderCheckbox /></th>
                         <th pSortableColumn="id">ID <p-sortIcon field="id" /></th>
                         <th pSortableColumn="titulo">Título <p-sortIcon field="titulo" /></th>
-                        <th pSortableColumn="estado">Estado <p-sortIcon field="estado" /></th>
-                        <th pSortableColumn="asignado_nombre">Asignado <p-sortIcon field="asignado_nombre" /></th>
                         <th pSortableColumn="prioridad">Prioridad <p-sortIcon field="prioridad" /></th>
-                        <th pSortableColumn="fechaLimite">Fecha Límite <p-sortIcon field="fechaLimite" /></th>
+                        <th pSortableColumn="asignado_nombre">Asignado <p-sortIcon field="asignado_nombre" /></th>
+                        <th pSortableColumn="estado">Estado</th>
+                        <th pSortableColumn="fecha_final">Fecha Límite <p-sortIcon field="fecha_final" /></th>
                         <th>Acciones</th>
                     </tr>
                 </ng-template>
 
                 <ng-template #body let-ticket>
-    <tr>
-        <td><p-tableCheckbox [value]="ticket" /></td>
-        <td class="font-mono text-blue-400 font-bold">{{ ticket.id }}</td>
-        <td class="font-medium">{{ ticket.titulo }}</td>
-        <td>
-            <p-tag [value]="ticket.estado" 
-                   [style]="{'background': ticket.estado_color, 'color': '#ffffff'}" />
-        </td>
-        <td>
-            <div class="flex align-items-center gap-2">
-                <i class="pi pi-user text-xs text-secondary"></i>
-                {{ ticket.asignado_email || 'Sin asignar' }}
-            </div>
-        </td>
-        <td>
-            <p-tag [value]="ticket.prioridad" [severity]="getSeverity(ticket.prioridad)" />
-        </td>
-        <td>{{ ticket.fecha_final | date:'dd/MM/yyyy' }}</td>
-        <td>
-            <p-button *ifHasPermission="'group:edit'" icon="pi pi-pencil" [rounded]="true" [outlined]="true" class="mr-2" (click)="editTicket(ticket)" />
-            <p-button *ifHasPermission="'group:delete'" icon="pi pi-trash" [rounded]="true" [outlined]="true" severity="danger" (click)="deleteTicket(ticket)" />
-        </td>
-    </tr>
-</ng-template>
+                    <tr>
+                        <td><p-tableCheckbox [value]="ticket" /></td>
+                        <td class="font-mono text-blue-400 font-bold">{{ ticket.id }}</td>
+                        <td class="font-medium">{{ ticket.titulo }}</td>
+                        <td>
+                            <p-tag [value]="ticket.prioridad" [severity]="getSeverity(ticket.prioridad)" />
+                        </td>
+                        <td>
+                            <div class="flex align-items-center gap-2">
+                                <i class="pi pi-user text-xs text-secondary"></i>
+                                <span class="text-sm">{{ ticket.asignado_email || 'Sin asignar' }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <p-tag [value]="ticket.estado" 
+                            [style]="{'background': ticket.estado_color, 'color': '#ffffff'}" />
+                        </td>
+                        <td>{{ ticket.fecha_final | date:'dd/MM/yyyy' }}</td>
+                        <td>
+                            <p-button icon="pi pi-pencil" [rounded]="true" [outlined]="true" class="mr-2" 
+                                      (click)="editTicket(ticket)" 
+                                      [pTooltip]="puedoEditar(ticket) ? 'Editar' : 'Solo lectura'" />
+                            
+                            <p-button *ifHasPermission="'tickets:delete'" icon="pi pi-trash" [rounded]="true" [outlined]="true" 
+                                      severity="danger" (click)="deleteTicket(ticket)" />
+                        </td>
+                    </tr>
+                </ng-template>
             </p-table>
 
-            <p-dialog [(visible)]="ticketDialog" [style]="{ width: '500px' }" header="Detalle del Ticket" [modal]="true" styleClass="p-fluid">
+            <p-dialog [(visible)]="ticketDialog" [style]="{ width: '500px' }" 
+                      [header]="'Detalle del Ticket: ' + ticket.id" [modal]="true" styleClass="p-fluid">
                 <ng-template #content>
                     <div class="flex flex-column gap-3">
                         <div>
                             <label class="block font-bold mb-1">Título</label>
-                            <input type="text" pInputText [(ngModel)]="ticket.titulo" required class="w-full" />
+                            <input type="text" pInputText [(ngModel)]="ticket.titulo" 
+                                   [disabled]="!puedoEditar(ticket)" required class="w-full" />
                         </div>
                         <div>
                             <label class="block font-bold mb-1">Descripción</label>
-                            <textarea pTextarea [(ngModel)]="ticket.descripcion" rows="3" class="w-full"></textarea>
+                            <textarea pTextarea [(ngModel)]="ticket.descripcion" 
+                                      [disabled]="!puedoEditar(ticket)" rows="3" class="w-full"></textarea>
                         </div>
                         <div class="grid">
                             <div class="col-6">
                                 <label class="block font-bold mb-1">Estado</label>
-                                <p-select [(ngModel)]="ticket.estados" [options]="estadosCat" optionLabel="label" optionValue="label" placeholder="Selecciona" class="w-full" appendTo="body"></p-select>
+                                <p-select [(ngModel)]="ticket.estado_id" [options]="estadosCat" 
+                                          [disabled]="!puedoEditar(ticket)"
+                                          placeholder="Selecciona" class="w-full" appendTo="body"></p-select>
                             </div>
                             <div class="col-6">
                                 <label class="block font-bold mb-1">Prioridad</label>
-                                <p-select [(ngModel)]="ticket.prioridades" [options]="prioridadesCat" optionLabel="label" optionValue="label" placeholder="Selecciona" class="w-full" appendTo="body"></p-select>
+                                <p-select [(ngModel)]="ticket.prioridad_id" [options]="prioridadesCat" 
+                                          [disabled]="!puedoEditar(ticket)"
+                                          placeholder="Selecciona" class="w-full" appendTo="body"></p-select>
                             </div>
                         </div>
-                        <div class="grid">
-                            <div class="col-12">
-                                <label class="block font-bold mb-1">Fecha Límite</label>
-                                <input type="date" pInputText [(ngModel)]="ticket.fecha_final" class="w-full" />
-                            </div>
+                        <div>
+                            <label class="block font-bold mb-1">Fecha Límite</label>
+                            <input type="date" pInputText [(ngModel)]="ticket.fecha_final" 
+                                   [disabled]="!puedoEditar(ticket)" class="w-full" />
                         </div>
                     </div>
                 </ng-template>
                 
                 <ng-template #footer>
-                    <p-button label="Cancelar" icon="pi pi-times" [text]="true" (click)="hideDialog()" />
-                    <p-button label="Guardar" icon="pi pi-check" (click)="saveTicket()" [loading]="loading" />
+                    <p-button label="Cerrar" icon="pi pi-times" [text]="true" (click)="hideDialog()" />
+                    @if (puedoEditar(ticket)) {
+                        <p-button label="Guardar" icon="pi pi-check" (click)="saveTicket()" [loading]="loading" />
+                    }
                 </ng-template>
             </p-dialog>
 
             <p-confirmdialog [style]="{ width: '450px' }" />
         </div>
     </div>
-</div>
 }
+</div>
