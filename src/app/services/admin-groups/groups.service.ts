@@ -35,7 +35,7 @@ export class GroupsService {
 
     // 2. Crear un nuevo grupo
     createGroup(groupData: any): Observable<any> {
-        return this.http.post<any>(this.apiUrl, groupData, { headers: this.getHeaders() });
+        return this.http.post<any>(this.apiUrl + '/', groupData, { headers: this.getHeaders() });
     }
 
     // 3. Actualizar un grupo existente

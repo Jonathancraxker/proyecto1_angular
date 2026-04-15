@@ -26,7 +26,6 @@ export class AuthService {
     try {
       const response: any = await firstValueFrom(
         this.http.post(`${this.apiUrlAuth}/login`, credentials, {
-          withCredentials: true
         })
       );
 
