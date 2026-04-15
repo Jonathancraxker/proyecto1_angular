@@ -80,9 +80,7 @@ export class AuthService {
 async logout() {
     try {
       await firstValueFrom(
-        this.http.post(`${this.apiUrlAuth}/logout`, {}, {
-          withCredentials: true
-        })
+        this.http.post(`${this.apiUrlAuth}/logout`, {}, {})
       );
     } catch (error) {
       console.error('Error en el logout:', error);
